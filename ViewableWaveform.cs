@@ -12,7 +12,7 @@ namespace GarageLights
     internal class ViewableWaveform
     {
         private float sampleRate;
-        private float[][] rms;
+        private float[] waveform;
 
         public ViewableWaveform(AudioFileReader audioFile)
         {
@@ -22,35 +22,17 @@ namespace GarageLights
             }
             sampleRate = audioFile.WaveFormat.SampleRate;
             int nSamples = (int)(audioFile.Length / sizeof(float) / 2);
-            int layers = (int)Math.Ceiling(Math.Log(nSamples, 2));
 
             // Read source data
-            var waveform = new float[nSamples * 2];
-            audioFile.ToSampleProvider().Read(waveform, 0, waveform.Length);
+            var samples = new float[nSamples * 2];
+            audioFile.ToSampleProvider().Read(samples, 0, samples.Length);
 
-            // Allocate subsampled layers
-            rms = new float[layers][];
-            for (int layer = 0; layer < layers; layer++)
+            // Collapse to one-dimensional waveform
+            // TODO: figure out what to do with right channel
+            waveform = new float[nSamples];
+            for (int s = 0; s< nSamples; s++)
             {
-                rms[layer] = new float[(int)Math.Ceiling((float)nSamples / (1 << layer))];
-            }
-            var sumSquares = new float[layers];
-
-            // Compute values for subsampled layers
-            for (int s = 0; s < nSamples; s++)
-            {
-                float value = waveform[s * 2];  // TODO: evaluate right channel as well
-                rms[0][s] = Math.Abs(value);
-                float value2 = value * value;
-                for (int layer = 1; layer < layers; layer++)
-                {
-                    sumSquares[layer] += value2;
-                    if ((s + 1) % (1 << layer) == 0)
-                    {
-                        rms[layer][((s + 1) >> layer) - 1] = (float)Math.Sqrt(sumSquares[layer] / (1 << layer));
-                        sumSquares[layer] = 0;
-                    }
-                }
+                waveform[s] = samples[s << 1];
             }
         }
 
@@ -58,13 +40,28 @@ namespace GarageLights
         {
             Func<int, int> sampleOfX = x => (int)(sampleRate * (t0 + (t1 - t0) * (x - x0) / (x1 - x0)));
             int s0 = sampleOfX(x0);
-            int s1 = sampleOfX(x1);
-            int layer = (int)Math.Floor(Math.Log((s1 - s0) / (x1 - x0), 2));
             for (int x = x0; x <= x1; x++)
             {
-                int i = sampleOfX(x) >> layer;
-                float v = rms[layer][i];
-                g.DrawLine(Pens.Blue, x, y0 - height * v, x, y0 + height * v);
+                int s1 = sampleOfX(x + 1);
+                if (s1 > waveform.Length)
+                {
+                    s1 = waveform.Length;
+                }
+                float minValue = 0;
+                float maxValue = 0;
+                for (int s = s0; s < s1; s++)
+                {
+                    if (waveform[s] < minValue)
+                    {
+                        minValue = waveform[s];
+                    }
+                    if (waveform[s] > maxValue)
+                    {
+                        maxValue = waveform[s];
+                    }
+                }
+                g.DrawLine(Pens.Blue, x, y0 - height * minValue, x, y0 - height * maxValue);
+                s0 = s1;
             }
         }
     }
