@@ -15,10 +15,9 @@ namespace GarageLights
         private IWavePlayer waveOut;
         private AudioFileReader audioFile;
 
-        private float[] waveformData;
         private float audioLength;
-        private float samplesPerPixel;
         private ViewableWaveform viewableWaveform;
+        private Bitmap waveformBitmap;
 
         private float leftTime;
         private float rightTime;
@@ -44,6 +43,7 @@ namespace GarageLights
             MouseMove += OnMouseMove;
             Paint += OnPaint;
             MouseDoubleClick += OnMouseDoubleClick;
+            Resize += OnResize;
         }
 
         public float AudioLength => audioLength;
@@ -64,6 +64,11 @@ namespace GarageLights
             {
                 UpdateAudioView(leftTime, value);
             }
+        }
+
+        public bool Playing
+        {
+            get => isPlaying;
         }
 
         private float Quantize(float value)
@@ -111,12 +116,17 @@ namespace GarageLights
                 newRightTime = Quantize(audioLength);
             }
 
+            using (Graphics g = Graphics.FromImage(waveformBitmap))
+            {
+                g.Clear(BackColor);
+                viewableWaveform.Draw(g, 0, waveformBitmap.Width, waveformBitmap.Height / 2, waveformBitmap.Height / 2, newLeftTime, newRightTime);
+            }
+
             if (Math.Abs(newLeftTime - leftTime) >= 0.5f * NAVIGATION_QUANTA_SECONDS ||
                 Math.Abs(newRightTime - rightTime) > 0.5f * NAVIGATION_QUANTA_SECONDS)
             {
                 leftTime = newLeftTime;
                 rightTime = newRightTime;
-                UpdateSamplesPerPixel();
                 BeginInvoke((Action)(() =>
                 {
                     AudioViewChanged?.Invoke(this, new AudioViewChangedEventArgs(leftTime, rightTime));
@@ -182,7 +192,6 @@ namespace GarageLights
             waveOut = newWaveOut;
             audioLength = (float)audioFile.TotalTime.TotalSeconds;
             viewableWaveform = newViewableWaveform;
-            GenerateWaveform();
 
             isLoadingAudio = false;
             UpdateAudioView(0, audioLength);
@@ -195,30 +204,36 @@ namespace GarageLights
             {
                 isPlaying = true;
                 waveOut.Play();
-                Debug.Print("Play: waveOut.PlaybackState == " + waveOut.PlaybackState);
                 new Thread(() =>
                 {
-                    Debug.Print("Playback thread: begin");
                     try
                     {
-                        Debug.Print("Playback thread: try (waveOut.PlaybackState == " + waveOut.PlaybackState + ")");
                         while (waveOut.PlaybackState == PlaybackState.Playing)
                         {
-                            Debug.Print("Playback thread: while Playing");
                             var newPosition = (float)audioFile.CurrentTime.TotalSeconds;
                             if (newPosition != audioPosition)
                             {
-                                Debug.Print("Playback thread: new position");
+                                Debug.Print("Playback thread: new position " + newPosition);
                                 audioPosition = newPosition;
-                                BeginInvoke((Action)(() =>
+                                DateTime t0 = DateTime.UtcNow;
+                                IAsyncResult result = BeginInvoke((Action)(() =>
                                 {
                                     Debug.Print("Playback -> UI thread: AudioPositionChanged");
                                     AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
                                     Invalidate();
                                 }));
+                                while (!result.IsCompleted)
+                                {
+                                    Thread.Sleep(1);
+                                }
+                                DateTime t1 = DateTime.UtcNow;
+                                Debug.Print("AudioPositionChanged " + (t1 - t0).TotalMilliseconds + "ms");
                             }
-                            Thread.Sleep(50);
-                            Debug.Print("Playback thread: after sleep, " + waveOut.PlaybackState);
+                            else
+                            {
+                                Thread.Sleep(10);
+                                Debug.Print("No audio position update " + DateTime.Now);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -250,23 +265,6 @@ namespace GarageLights
             }
         }
 
-        private void GenerateWaveform()
-        {
-            var samples = new float[audioFile.Length / sizeof(float)];
-            audioFile.ToSampleProvider().Read(samples, 0, samples.Length);
-
-            waveformData = new float[samples.Length / 100]; // Downsample by a factor of 100 for performance
-            for (int i = 0; i < waveformData.Length; i++)
-            {
-                waveformData[i] = Math.Abs(samples[i * 100]);
-            }
-        }
-
-        private void UpdateSamplesPerPixel()
-        {
-            samplesPerPixel = waveformData.Length / (RightTime - LeftTime);
-        }
-
         private float TimeAt(float x)
         {
             return leftTime + (rightTime - leftTime) * x / Width;
@@ -275,34 +273,19 @@ namespace GarageLights
         private void OnPaint(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
-            g.Clear(BackColor);
 
             if (isLoadingAudio)
             {
                 g.Clear(Color.LightYellow);
             }
 
-            if (waveformData == null) return;
-
-            viewableWaveform.Draw(g, 0, ClientRectangle.Width, ClientRectangle.Y + ClientRectangle.Height / 2, ClientRectangle.Height / 2, leftTime, rightTime);
-
-            /*var width = ClientSize.Width;
-            var height = ClientSize.Height;
-
-            for (int x = 0; x < width; x++)
-            {
-                int sampleIndex = (int)((LeftTime + (x / (float)width) * (RightTime - LeftTime)) * samplesPerPixel);
-                if (sampleIndex >= 0 && sampleIndex < waveformData.Length)
-                {
-                    var amplitude = waveformData[sampleIndex] * height;
-                    g.DrawLine(Pens.Green, x, height / 2 - amplitude / 2, x, height / 2 + amplitude / 2);
-                }
-            }*/
+            // Draw waveform
+            g.DrawImage(waveformBitmap, 0, 0);
 
             // Draw AudioPosition line
-            if (audioPosition >= LeftTime && audioPosition <= RightTime)
+            if (audioPosition >= leftTime && audioPosition <= rightTime)
             {
-                var positionX = (audioPosition - LeftTime) / (RightTime - LeftTime) * ClientSize.Width;
+                float positionX = leftTime != rightTime ? (audioPosition - leftTime) / (rightTime - leftTime) * ClientSize.Width : 0;
                 g.DrawLine(Pens.Red, (int)positionX, 0, (int)positionX, ClientSize.Height);
             }
         }
@@ -311,8 +294,8 @@ namespace GarageLights
         {
             if (audioFile == null) return;
 
-            var zoomAmount = e.Delta > 0 ? 0.9f : 1.1f;
-            var mouseTime = TimeAt(e.X);
+            float zoomAmount = e.Delta > 0 ? 0.9f : 1.1f;
+            float mouseTime = TimeAt(e.X);
 
             UpdateAudioView(
                 mouseTime - (mouseTime - leftTime) * zoomAmount,
@@ -370,6 +353,16 @@ namespace GarageLights
             {
                 Play();
             }
+        }
+
+        private void OnResize(object sender, EventArgs e)
+        {
+            if (waveformBitmap != null)
+            {
+                waveformBitmap.Dispose();
+            }
+            waveformBitmap = new Bitmap(ClientSize.Width, ClientSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Invalidate();
         }
 
         protected override void Dispose(bool disposing)

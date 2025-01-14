@@ -22,7 +22,14 @@ namespace GarageLights
 
         private void button1_Click(object sender, EventArgs e)
         {
-            audioControl1.Play();
+            if (audioControl1.Playing)
+            {
+                audioControl1.Pause();
+            }
+            else
+            {
+                audioControl1.Play();
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
