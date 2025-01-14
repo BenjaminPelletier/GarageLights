@@ -35,6 +35,7 @@ namespace GarageLights
         private void Form1_Load(object sender, EventArgs e)
         {
             audioControl1.LoadAudio("C:\\Users\\bjpca\\Music\\Streamtagger\\202303\\01 Cravin'.mp3");
+            //audioControl1.LoadAudio("C:\\Users\\bjpca\\Music\\01 Cravin'.wav");
         }
 
         private void audioControl1_AudioViewChanged(object sender, AudioControl.AudioViewChangedEventArgs e)

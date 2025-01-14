@@ -149,6 +149,7 @@ namespace GarageLights
         {
             audioPosition = Math.Max(0, Math.Min(newAudioPosition, audioLength));
             audioFile.Position = (long)(audioPosition * audioFile.WaveFormat.AverageBytesPerSecond);
+            Debug.Print("audioPosition = " + audioPosition + ", bytes = " + audioFile.Position);
             BeginInvoke((Action)(() =>
             {
                 AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
@@ -259,7 +260,7 @@ namespace GarageLights
         {
             if (waveOut != null && isPlaying)
             {
-                waveOut.Pause();
+                waveOut.Stop();
                 isPlaying = false;
                 PlaybackStopped?.Invoke(this, EventArgs.Empty);
             }
@@ -294,7 +295,8 @@ namespace GarageLights
         {
             if (audioFile == null) return;
 
-            float zoomAmount = e.Delta > 0 ? 0.9f : 1.1f;
+            const float ZOOM_PER_WHEEL = 0.7f;
+            float zoomAmount = e.Delta > 0 ? ZOOM_PER_WHEEL : (1.0f / ZOOM_PER_WHEEL);
             float mouseTime = TimeAt(e.X);
 
             UpdateAudioView(
