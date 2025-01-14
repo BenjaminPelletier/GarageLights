@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using NAudio.Wave;
 using System.Threading;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace GarageLights
 {
@@ -12,7 +13,7 @@ namespace GarageLights
         const float MIN_WINDOW_SECONDS = 0.5f;
         const float NAVIGATION_QUANTA_SECONDS = 0.001f;
 
-        private IWavePlayer waveOut;
+        private WaveOutEvent waveOut;
         private AudioFileReader audioFile;
 
         private float audioLength;
@@ -22,12 +23,13 @@ namespace GarageLights
         private float leftTime;
         private float rightTime;
         private float audioPosition;
+        private float timePlaybackStarted;
 
         private bool isLoadingAudio;
         private bool isDragging;
         private Point dragStartPoint;
         private float dragStartLeftTime;
-        private bool isPlaying;
+        private Task<bool> playingTask;
 
         public event EventHandler<AudioViewChangedEventArgs> AudioViewChanged;
         public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
@@ -68,7 +70,7 @@ namespace GarageLights
 
         public bool Playing
         {
-            get => isPlaying;
+            get => playingTask != null && !playingTask.IsCompleted;
         }
 
         private float Quantize(float value)
@@ -141,7 +143,18 @@ namespace GarageLights
             set
             {
                 if (audioFile == null) return;
+
+                bool play = false;
+                if (Playing)
+                {
+                    play = true;
+                    Stop();
+                }
                 UpdateAudioPosition(value);
+                if (play)
+                {
+                    Play();
+                }
             }
         }
 
@@ -149,7 +162,6 @@ namespace GarageLights
         {
             audioPosition = Math.Max(0, Math.Min(newAudioPosition, audioLength));
             audioFile.Position = (long)(audioPosition * audioFile.WaveFormat.AverageBytesPerSecond);
-            Debug.Print("audioPosition = " + audioPosition + ", bytes = " + audioFile.Position);
             BeginInvoke((Action)(() =>
             {
                 AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
@@ -201,67 +213,66 @@ namespace GarageLights
 
         public void Play()
         {
-            if (waveOut != null && !isPlaying)
+            if (waveOut != null && Playing)
             {
-                isPlaying = true;
-                waveOut.Play();
-                new Thread(() =>
-                {
-                    try
-                    {
-                        while (waveOut.PlaybackState == PlaybackState.Playing)
-                        {
-                            var newPosition = (float)audioFile.CurrentTime.TotalSeconds;
-                            if (newPosition != audioPosition)
-                            {
-                                Debug.Print("Playback thread: new position " + newPosition);
-                                audioPosition = newPosition;
-                                DateTime t0 = DateTime.UtcNow;
-                                IAsyncResult result = BeginInvoke((Action)(() =>
-                                {
-                                    Debug.Print("Playback -> UI thread: AudioPositionChanged");
-                                    AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
-                                    Invalidate();
-                                }));
-                                while (!result.IsCompleted)
-                                {
-                                    Thread.Sleep(1);
-                                }
-                                DateTime t1 = DateTime.UtcNow;
-                                Debug.Print("AudioPositionChanged " + (t1 - t0).TotalMilliseconds + "ms");
-                            }
-                            else
-                            {
-                                Thread.Sleep(10);
-                                Debug.Print("No audio position update " + DateTime.Now);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Print("Playback thread: exception " + ex);
-                    }
-                    finally
-                    {
-                        Debug.Print("Playback thread: finally");
-                        if (isPlaying)
-                        {
-                            isPlaying = false;
-                            BeginInvoke((Action)(() => PlaybackStopped?.Invoke(this, EventArgs.Empty)));
-                        }
-                    }
-                })
-                { IsBackground = true }.Start();
-                PlaybackStarted?.Invoke(this, EventArgs.Empty);
+                return;
             }
+
+            var tcs = new TaskCompletionSource<bool>();
+            playingTask = tcs.Task;
+
+            timePlaybackStarted = (float)audioFile.CurrentTime.TotalSeconds;
+            waveOut.Play();
+
+            new Thread(() =>
+            {
+                try
+                {
+                    IAsyncResult uiResult = null;
+                    while (waveOut.PlaybackState == PlaybackState.Playing)
+                    {
+                        var newPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
+                        Debug.Print("Playback thread: new position " + newPosition);
+                        audioPosition = newPosition;
+                        if (uiResult == null || uiResult.IsCompleted)
+                        {
+                            uiResult = BeginInvoke((Action)(() =>
+                            {
+                                Debug.Print("Playback -> UI thread: AudioPositionChanged");
+                                AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
+                                Invalidate();
+                            }));
+                        }
+                    }
+                    tcs.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print("Playback thread: exception " + ex);
+                    tcs.SetException(ex);
+                }
+                finally
+                {
+                    Debug.Print("Playback thread: finally");
+                    BeginInvoke((Action)(() => PlaybackStopped?.Invoke(this, EventArgs.Empty)));
+                }
+            })
+            { IsBackground = true }.Start();
+            PlaybackStarted?.Invoke(this, EventArgs.Empty);
         }
 
-        public void Pause()
+        public void Stop()
         {
-            if (waveOut != null && isPlaying)
+            if (Playing)
             {
+                waveOut.Pause();
+                audioPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
                 waveOut.Stop();
-                isPlaying = false;
+                playingTask.Wait();
+                if (playingTask.IsFaulted)
+                {
+                    throw new PlaybackException("An exception occurred during audio playback", playingTask.Exception);
+                }
                 PlaybackStopped?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -394,6 +405,11 @@ namespace GarageLights
             {
                 AudioPosition = audioPosition;
             }
+        }
+
+        public class PlaybackException : Exception
+        {
+            public PlaybackException(string message, Exception innerException) : base(message, innerException) { }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace GarageLights
         {
             if (audioControl1.Playing)
             {
-                audioControl1.Pause();
+                audioControl1.Stop();
             }
             else
             {
