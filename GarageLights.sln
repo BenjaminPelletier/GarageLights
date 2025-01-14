@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarageLights", "GarageLights.csproj", "{B67228BA-1156-4392-A8C6-140EFC1DBCED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B67228BA-1156-4392-A8C6-140EFC1DBCED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B67228BA-1156-4392-A8C6-140EFC1DBCED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B67228BA-1156-4392-A8C6-140EFC1DBCED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B67228BA-1156-4392-A8C6-140EFC1DBCED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {718293E2-919E-4CE1-A0CA-42E71C51E465}
+	EndGlobalSection
+EndGlobal
