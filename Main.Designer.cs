@@ -33,7 +33,6 @@ namespace GarageLights
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.tUpdate = new System.Windows.Forms.Timer(this.components);
-            this.multiquence1 = new GarageLights.Show.Multiquence();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,14 +45,6 @@ namespace GarageLights
             // tUpdate
             // 
             this.tUpdate.Interval = 50;
-            // 
-            // multiquence1
-            // 
-            this.multiquence1.Location = new System.Drawing.Point(18, 43);
-            this.multiquence1.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
-            this.multiquence1.Name = "multiquence1";
-            this.multiquence1.Size = new System.Drawing.Size(1384, 611);
-            this.multiquence1.TabIndex = 0;
             // 
             // menuStrip1
             // 
@@ -106,7 +97,6 @@ namespace GarageLights
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1420, 672);
-            this.Controls.Add(this.multiquence1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
@@ -122,7 +112,6 @@ namespace GarageLights
 
         #endregion
         private System.Windows.Forms.Timer tUpdate;
-        private Multiquence multiquence1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;

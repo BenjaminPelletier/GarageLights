@@ -1,4 +1,5 @@
 ﻿using GarageLights.Properties;
+using GarageLights.Show;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using Newtonsoft.Json;
@@ -23,11 +24,21 @@ namespace GarageLights
     {
         const string SETTINGS_PATH = "settings.json";
 
+        private Multiquence multiquence1;
         private GarageLightsSettings settings;
 
         public frmMain()
         {
             InitializeComponent();
+
+            multiquence1 = new Multiquence();
+            this.multiquence1.Location = new Point(ClientRectangle.Left, menuStrip1.Bottom);
+            this.multiquence1.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.multiquence1.Name = "multiquence1";
+            this.multiquence1.Size = new Size(ClientSize.Width - 6, ClientSize.Height - multiquence1.Top - 6);
+            this.multiquence1.TabIndex = 0;
+            multiquence1.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            this.Controls.Add(this.multiquence1);
         }
 
         private void Main_Load(object sender, EventArgs e)
