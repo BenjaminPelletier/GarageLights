@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarageLights
+namespace GarageLights.Controllers
 {
-    internal class AudioProcessor
+    internal interface IController
     {
+        void SetChannel(int address, int value);
     }
 }

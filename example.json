@@ -1,0 +1,41 @@
+{
+	"AudioFile": "C:\\Users\\bjpca\\Music\\Streamtagger\\202303\\01 Cravin'.mp3",
+	"Controllers": [
+		{"Name": "DMX Serial",
+			"SerialDmx": {
+				"Port": "COM2"
+			}
+		},
+		{"Name": "Garage lights",
+			"Wemo": {
+				"IpAddress": "192.168.87.1"
+			}
+		}
+	],
+	"ChannelNodes": [
+		{"Name": "Garage lights",
+			"Channel": {
+				"Controller": "Garage lights"
+			}
+		},
+		{"Name": "Mini beam 1",
+			"Group": {
+				"Controller": "DMX Serial",
+				"Address": 1,
+				"Nodes": [
+					{"Name": "Pan",			"Channel": {"Address": 0}},
+					{"Name": "Pan (fine)",	"Channel": {"Address": 1}},
+					{"Name": "Tilt",		"Channel": {"Address": 2}},
+					{"Name": "Tilt (fine)",	"Channel": {"Address": 3}},
+					{"Name": "Dimmer",		"Channel": {"Address": 5}},
+					{"Name": "Strobe",		"Channel": {"Address": 6}},
+					{"Name": "Red",			"Channel": {"Address": 7}},
+					{"Name": "Green",		"Channel": {"Address": 8}},
+					{"Name": "Blue",		"Channel": {"Address": 9}},
+					{"Name": "White",		"Channel": {"Address": 10}},
+					{"Name": "Demo",		"Channel": {"Address": 11}},
+				]
+			}
+		}
+	]
+}

@@ -84,10 +84,6 @@ namespace GarageLights
             {
                 return;
             }
-            if (newLeftTime == leftTime && newRightTime == rightTime)
-            {
-                return;
-            }
 
             newLeftTime = Quantize(newLeftTime);
             newRightTime = Quantize(newRightTime);
@@ -292,7 +288,10 @@ namespace GarageLights
             }
 
             // Draw waveform
-            g.DrawImage(waveformBitmap, 0, 0);
+            if (waveformBitmap != null)
+            {
+                g.DrawImage(waveformBitmap, 0, 0);
+            }
 
             // Draw AudioPosition line
             if (audioPosition >= leftTime && audioPosition <= rightTime)
@@ -375,6 +374,7 @@ namespace GarageLights
                 waveformBitmap.Dispose();
             }
             waveformBitmap = new Bitmap(ClientSize.Width, ClientSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            UpdateAudioView(leftTime, rightTime);
             Invalidate();
         }
 
