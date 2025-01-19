@@ -5,6 +5,7 @@ using NAudio.Wave;
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace GarageLights
 {
@@ -12,6 +13,8 @@ namespace GarageLights
     {
         const float MIN_WINDOW_SECONDS = 0.5f;
         const float NAVIGATION_QUANTA_SECONDS = 0.001f;
+
+        bool designMode;
 
         private WaveOutEvent waveOut;
         private AudioFileReader audioFile;
@@ -31,21 +34,27 @@ namespace GarageLights
         private float dragStartLeftTime;
         private Task<bool> playingTask;
 
+        public event EventHandler AudioLoaded;
         public event EventHandler<AudioViewChangedEventArgs> AudioViewChanged;
         public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
         public event EventHandler PlaybackStarted;
         public event EventHandler PlaybackStopped;
+        public event EventHandler FileLoadRequested;
 
         public AudioControl()
         {
+            designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             DoubleBuffered = true;
-            MouseWheel += OnMouseWheel;
-            MouseDown += OnMouseDown;
-            MouseUp += OnMouseUp;
-            MouseMove += OnMouseMove;
-            Paint += OnPaint;
-            MouseDoubleClick += OnMouseDoubleClick;
-            Resize += OnResize;
+            if (!designMode)
+            {
+                MouseWheel += OnMouseWheel;
+                MouseDown += OnMouseDown;
+                MouseUp += OnMouseUp;
+                MouseMove += OnMouseMove;
+                Paint += OnPaint;
+                MouseDoubleClick += OnMouseDoubleClick;
+                Resize += OnResize;
+            }
         }
 
         public float AudioLength => audioLength;
@@ -80,7 +89,7 @@ namespace GarageLights
 
         private void UpdateAudioView(float newLeftTime, float newRightTime)
         {
-            if (audioFile == null)
+            if (audioFile == null || designMode)
             {
                 return;
             }
@@ -138,7 +147,7 @@ namespace GarageLights
             get => audioPosition;
             set
             {
-                if (audioFile == null) return;
+                if (audioFile == null || designMode) return;
 
                 bool play = false;
                 if (Playing)
@@ -203,6 +212,7 @@ namespace GarageLights
             viewableWaveform = newViewableWaveform;
 
             isLoadingAudio = false;
+            AudioLoaded?.Invoke(this, EventArgs.Empty);
             UpdateAudioView(0, audioLength);
             UpdateAudioPosition(0);
         }
@@ -317,8 +327,6 @@ namespace GarageLights
 
         private void OnMouseDown(object sender, MouseEventArgs e)
         {
-            if (audioFile == null) return;
-
             if (e.Button == MouseButtons.Middle)
             {
                 isDragging = true;
@@ -336,6 +344,10 @@ namespace GarageLights
             if (e.Button == MouseButtons.Middle)
             {
                 isDragging = false;
+            }
+            else if (audioFile == null)
+            {
+                FileLoadRequested?.Invoke(this, EventArgs.Empty);
             }
         }
 

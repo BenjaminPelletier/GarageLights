@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,10 +13,14 @@ namespace GarageLights.Show
 {
     internal partial class Multiquence : UserControl
     {
+        private bool designMode;
         private Project project;
+
+        public EventHandler<AudioFileEventArgs> AudioFileChanged;
 
         public Multiquence()
         {
+            designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             InitializeComponent();
         }
 
@@ -34,15 +39,54 @@ namespace GarageLights.Show
                 );
             }
         }
-
-        private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
+        private void bPlay_Click(object sender, EventArgs e)
         {
-
+            audioControl1.Play();
         }
 
         private void bStop_Click(object sender, EventArgs e)
         {
+            audioControl1.Stop();
+        }
 
+        private void splitContainer1_Panel1_Resize(object sender, EventArgs e)
+        {
+            tvChannels.Width = splitContainer1.Panel1.Width - 2 * tvChannels.Left;
+            tvChannels.Height = splitContainer1.Panel1.Height - tvChannels.Top - tvChannels.Left;
+        }
+
+        private void audioControl1_FileLoadRequested(object sender, EventArgs e)
+        {
+            if (ofdAudioFile.ShowDialog() == DialogResult.OK)
+            {
+                audioControl1.LoadAudio(ofdAudioFile.FileName);
+                AudioFileChanged?.Invoke(this, new AudioFileEventArgs(ofdAudioFile.FileName));
+            }
+        }
+
+        public class AudioFileEventArgs : EventArgs
+        {
+            public readonly string FileName;
+
+            public AudioFileEventArgs(string fileName)
+            {
+                FileName = fileName;
+            }
+        }
+
+        private void audioControl1_AudioLoaded(object sender, EventArgs e)
+        {
+            keyframeControl1.MaxTime = audioControl1.AudioLength;
+        }
+
+        private void audioControl1_AudioViewChanged(object sender, AudioControl.AudioViewChangedEventArgs e)
+        {
+            keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
+        }
+
+        private void audioControl1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
+        {
+            keyframeControl1.CurrentTime = e.AudioPosition;
         }
     }
 }
