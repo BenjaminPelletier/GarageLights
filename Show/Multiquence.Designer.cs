@@ -29,13 +29,12 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
+            this.toolPanel1 = new GarageLights.Show.ToolPanel();
             this.tvChannels = new GarageLights.Show.ChannelTreeView();
-            this.bStop = new System.Windows.Forms.Button();
-            this.bPlay = new System.Windows.Forms.Button();
             this.keyframeControl1 = new GarageLights.Show.KeyframeControl();
             this.showScroller1 = new GarageLights.Show.ShowScroller();
             this.audioControl1 = new GarageLights.AudioControl();
-            this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -51,9 +50,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.toolPanel1);
             this.splitContainer1.Panel1.Controls.Add(this.tvChannels);
-            this.splitContainer1.Panel1.Controls.Add(this.bStop);
-            this.splitContainer1.Panel1.Controls.Add(this.bPlay);
             this.splitContainer1.Panel1.Resize += new System.EventHandler(this.splitContainer1_Panel1_Resize);
             // 
             // splitContainer1.Panel2
@@ -67,6 +65,21 @@
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
             // 
+            // ofdAudioFile
+            // 
+            this.ofdAudioFile.FileName = "song.mp3";
+            this.ofdAudioFile.Filter = "MP3 file|*.mp3|WAV file|*.wav";
+            // 
+            // toolPanel1
+            // 
+            this.toolPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.toolPanel1.Location = new System.Drawing.Point(4, 5);
+            this.toolPanel1.Name = "toolPanel1";
+            this.toolPanel1.Size = new System.Drawing.Size(214, 198);
+            this.toolPanel1.TabIndex = 4;
+            this.toolPanel1.Play += new System.EventHandler(this.toolPanel1_Play);
+            this.toolPanel1.Stop += new System.EventHandler(this.toolPanel1_Stop);
+            // 
             // tvChannels
             // 
             this.tvChannels.CheckBoxes = true;
@@ -78,40 +91,17 @@
             this.tvChannels.Size = new System.Drawing.Size(214, 212);
             this.tvChannels.TabIndex = 3;
             // 
-            // bStop
-            // 
-            this.bStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bStop.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bStop.Location = new System.Drawing.Point(126, 163);
-            this.bStop.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.bStop.Name = "bStop";
-            this.bStop.Size = new System.Drawing.Size(41, 40);
-            this.bStop.TabIndex = 2;
-            this.bStop.Text = "■";
-            this.bStop.UseVisualStyleBackColor = true;
-            this.bStop.Click += new System.EventHandler(this.bStop_Click);
-            // 
-            // bPlay
-            // 
-            this.bPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPlay.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bPlay.Location = new System.Drawing.Point(175, 163);
-            this.bPlay.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.bPlay.Name = "bPlay";
-            this.bPlay.Size = new System.Drawing.Size(40, 40);
-            this.bPlay.TabIndex = 1;
-            this.bPlay.Text = "►";
-            this.bPlay.UseVisualStyleBackColor = true;
-            this.bPlay.Click += new System.EventHandler(this.bPlay_Click);
-            // 
             // keyframeControl1
             // 
             this.keyframeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.keyframeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.keyframeControl1.CurrentTime = 0F;
             this.keyframeControl1.Location = new System.Drawing.Point(6, 212);
+            this.keyframeControl1.MaxTime = 0F;
             this.keyframeControl1.Name = "keyframeControl1";
-            this.keyframeControl1.Size = new System.Drawing.Size(582, 210);
+            this.keyframeControl1.RowSource = null;
+            this.keyframeControl1.Size = new System.Drawing.Size(578, 210);
             this.keyframeControl1.TabIndex = 2;
             // 
             // showScroller1
@@ -139,11 +129,6 @@
             this.audioControl1.AudioPositionChanged += new System.EventHandler<GarageLights.AudioControl.AudioPositionChangedEventArgs>(this.audioControl1_AudioPositionChanged);
             this.audioControl1.FileLoadRequested += new System.EventHandler(this.audioControl1_FileLoadRequested);
             // 
-            // ofdAudioFile
-            // 
-            this.ofdAudioFile.FileName = "song.mp3";
-            this.ofdAudioFile.Filter = "MP3 file|*.mp3|WAV file|*.wav";
-            // 
             // Multiquence
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -165,10 +150,9 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private ShowScroller showScroller1;
         private AudioControl audioControl1;
-        private System.Windows.Forms.Button bStop;
-        private System.Windows.Forms.Button bPlay;
         private KeyframeControl keyframeControl1;
         private ChannelTreeView tvChannels;
         private System.Windows.Forms.OpenFileDialog ofdAudioFile;
+        private ToolPanel toolPanel1;
     }
 }

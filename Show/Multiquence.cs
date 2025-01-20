@@ -22,6 +22,8 @@ namespace GarageLights.Show
         {
             designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             InitializeComponent();
+            tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
+            keyframeControl1.RowSource = tvChannels;
         }
 
         public Project Project
@@ -37,15 +39,26 @@ namespace GarageLights.Show
                         .Select(n => ChannelNodeTreeNode.FromChannelNode(n))
                         .ToArray()
                 );
+
+                if (project.Keyframes == null)
+                {
+                    project.Keyframes = new Dictionary<string, List<Keyframe>>();
+                }
+                keyframeControl1.Keyframes = project.Keyframes;
+
+                if (project.AudioFile != null)
+                {
+                    audioControl1.LoadAudio(project.AudioFile);
+                }
             }
         }
 
-        private void bPlay_Click(object sender, EventArgs e)
+        private void toolPanel1_Play(object sender, EventArgs e)
         {
             audioControl1.Play();
         }
 
-        private void bStop_Click(object sender, EventArgs e)
+        private void toolPanel1_Stop(object sender, EventArgs e)
         {
             audioControl1.Stop();
         }
@@ -54,7 +67,7 @@ namespace GarageLights.Show
         {
             tvChannels.Width = splitContainer1.Panel1.Width - 2 * tvChannels.Left;
             tvChannels.Height = splitContainer1.Panel1.Height - tvChannels.Top - tvChannels.Left;
-            Debug.Print("Play location: " + bPlay.Location + ", Panel1 size: " + splitContainer1.Panel1.Size);
+            toolPanel1.Width = tvChannels.Width;
         }
 
         private void splitContainer1_Panel2_Resize(object sender, EventArgs e)
@@ -76,17 +89,22 @@ namespace GarageLights.Show
 
         private void audioControl1_AudioLoaded(object sender, EventArgs e)
         {
-            //keyframeControl1.MaxTime = audioControl1.AudioLength;
+            keyframeControl1.MaxTime = audioControl1.AudioLength;
         }
 
         private void audioControl1_AudioViewChanged(object sender, AudioControl.AudioViewChangedEventArgs e)
         {
-            //keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
+            keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
         }
 
         private void audioControl1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
         {
-            //keyframeControl1.CurrentTime = e.AudioPosition;
+            keyframeControl1.CurrentTime = e.AudioPosition;
+        }
+
+        private void tvChannels_NodeLayoutChanged(object sender, EventArgs e)
+        {
+            keyframeControl1.Invalidate();
         }
 
         public class AudioFileEventArgs : EventArgs

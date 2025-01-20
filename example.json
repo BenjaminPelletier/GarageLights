@@ -37,5 +37,11 @@
 				]
 			}
 		}
-	]
+	],
+	"Keyframes": {
+		"Mini beam 1.Dimmer": [
+			{ "Time": 5.2, "Value": 128, "Style": "Step" },
+			{ "Time": 17.8, "Value": 255 },
+		]
+	}
 }

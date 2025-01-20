@@ -260,7 +260,10 @@ namespace GarageLights
                 finally
                 {
                     Debug.Print("Playback thread: finally");
-                    BeginInvoke((Action)(() => PlaybackStopped?.Invoke(this, EventArgs.Empty)));
+                    if (IsHandleCreated)
+                    {
+                        BeginInvoke((Action)(() => PlaybackStopped?.Invoke(this, EventArgs.Empty)));
+                    }
                 }
             })
             { IsBackground = true }.Start();
@@ -335,6 +338,10 @@ namespace GarageLights
             }
             else if (e.Button == MouseButtons.Left)
             {
+                if (Playing)
+                {
+                    Stop();
+                }
                 AudioPosition = TimeAt(e.X);
             }
         }

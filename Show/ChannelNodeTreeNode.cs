@@ -10,12 +10,10 @@ namespace GarageLights.Show
 {
     internal class ChannelNodeTreeNode : TreeNode
     {
-        ChannelNode parent;
         ChannelNode channelNode;
 
         public ChannelNodeTreeNode(ChannelNode node, ChannelNode parent) : base(node.Name)
         {
-            this.parent = parent;
             channelNode = node;
         }
 
@@ -33,6 +31,21 @@ namespace GarageLights.Show
             else
             {
                 return new ChannelNodeTreeNode(channelNode, parent);
+            }
+        }
+
+        public ChannelNode ChannelNode { get { return channelNode; } }
+
+        public string FullName
+        {
+            get
+            {
+                string name = channelNode.Name;
+                if (Parent != null)
+                {
+                    name = ((ChannelNodeTreeNode)this.Parent).FullName + "." + name;
+                }
+                return name;
             }
         }
     }

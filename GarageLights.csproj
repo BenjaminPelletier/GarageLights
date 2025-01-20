@@ -86,6 +86,7 @@
     <Compile Include="Show\ChannelTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Show\Keyframe.cs" />
     <Compile Include="Show\KeyframeControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -102,6 +103,12 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Audio\ViewableWaveform.cs" />
+    <Compile Include="Show\ToolPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Show\ToolPanel.Designer.cs">
+      <DependentUpon>ToolPanel.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
@@ -117,6 +124,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Show\ToolPanel.resx">
+      <DependentUpon>ToolPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
