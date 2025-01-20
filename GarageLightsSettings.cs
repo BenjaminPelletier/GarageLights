@@ -17,7 +17,7 @@ namespace GarageLights
         [JsonProperty]
         public string ProjectFile
         {
-            get => projectFile;
+            get { return projectFile; }
             set
             {
                 if (value != projectFile)

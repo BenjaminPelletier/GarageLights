@@ -61,6 +61,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.keyframeControl1);
             this.splitContainer1.Panel2.Controls.Add(this.showScroller1);
             this.splitContainer1.Panel2.Controls.Add(this.audioControl1);
+            this.splitContainer1.Panel2.Resize += new System.EventHandler(this.splitContainer1_Panel2_Resize);
             this.splitContainer1.Size = new System.Drawing.Size(848, 429);
             this.splitContainer1.SplitterDistance = 222;
             this.splitContainer1.SplitterWidth = 6;
@@ -107,26 +108,23 @@
             // 
             this.keyframeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.keyframeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.keyframeControl1.Location = new System.Drawing.Point(6, 212);
             this.keyframeControl1.Name = "keyframeControl1";
-            this.keyframeControl1.Size = new System.Drawing.Size(588, 210);
+            this.keyframeControl1.Size = new System.Drawing.Size(582, 210);
             this.keyframeControl1.TabIndex = 2;
             // 
             // showScroller1
             // 
-            this.showScroller1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.showScroller1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.showScroller1.Location = new System.Drawing.Point(6, 5);
             this.showScroller1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.showScroller1.Name = "showScroller1";
-            this.showScroller1.Size = new System.Drawing.Size(588, 39);
+            this.showScroller1.Size = new System.Drawing.Size(584, 39);
             this.showScroller1.TabIndex = 1;
             // 
             // audioControl1
             // 
-            this.audioControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.audioControl1.AudioPosition = 0F;
             this.audioControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.audioControl1.LeftTime = 0F;
@@ -134,7 +132,7 @@
             this.audioControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.audioControl1.Name = "audioControl1";
             this.audioControl1.RightTime = 0F;
-            this.audioControl1.Size = new System.Drawing.Size(588, 149);
+            this.audioControl1.Size = new System.Drawing.Size(584, 149);
             this.audioControl1.TabIndex = 0;
             this.audioControl1.AudioLoaded += new System.EventHandler(this.audioControl1_AudioLoaded);
             this.audioControl1.AudioViewChanged += new System.EventHandler<GarageLights.AudioControl.AudioViewChangedEventArgs>(this.audioControl1_AudioViewChanged);

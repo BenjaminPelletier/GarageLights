@@ -11,7 +11,7 @@ namespace GarageLights.Show
 {
     internal class KeyframeControl : UserControl
     {
-        float maxTime;
+        /*float maxTime;
         float currentTime;
         float leftTime;
         float rightTime;
@@ -24,7 +24,7 @@ namespace GarageLights.Show
 
         public float MaxTime
         {
-            get => MaxTime;
+            get { return maxTime; }
             set
             {
                 maxTime = value;
@@ -40,7 +40,7 @@ namespace GarageLights.Show
 
         public float CurrentTime
         {
-            get => currentTime;
+            get { return currentTime; }
             set
             {
                 currentTime = value;
@@ -58,6 +58,6 @@ namespace GarageLights.Show
                 float x = (currentTime - leftTime) / (rightTime - leftTime) * ClientSize.Width;
                 e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
             }
-        }
+        }*/
     }
 }

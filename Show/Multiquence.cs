@@ -26,7 +26,7 @@ namespace GarageLights.Show
 
         public Project Project
         {
-            get => Project;
+            get { return project; }
             set
             {
                 project = value;
@@ -39,6 +39,7 @@ namespace GarageLights.Show
                 );
             }
         }
+
         private void bPlay_Click(object sender, EventArgs e)
         {
             audioControl1.Play();
@@ -53,6 +54,15 @@ namespace GarageLights.Show
         {
             tvChannels.Width = splitContainer1.Panel1.Width - 2 * tvChannels.Left;
             tvChannels.Height = splitContainer1.Panel1.Height - tvChannels.Top - tvChannels.Left;
+            Debug.Print("Play location: " + bPlay.Location + ", Panel1 size: " + splitContainer1.Panel1.Size);
+        }
+
+        private void splitContainer1_Panel2_Resize(object sender, EventArgs e)
+        {
+            showScroller1.Width = splitContainer1.Panel2.Width - 2 * showScroller1.Left;
+            audioControl1.Width = showScroller1.Width;
+            keyframeControl1.Width = showScroller1.Width;
+            keyframeControl1.Height = ClientSize.Height - keyframeControl1.Top - showScroller1.Left;
         }
 
         private void audioControl1_FileLoadRequested(object sender, EventArgs e)
@@ -64,6 +74,21 @@ namespace GarageLights.Show
             }
         }
 
+        private void audioControl1_AudioLoaded(object sender, EventArgs e)
+        {
+            //keyframeControl1.MaxTime = audioControl1.AudioLength;
+        }
+
+        private void audioControl1_AudioViewChanged(object sender, AudioControl.AudioViewChangedEventArgs e)
+        {
+            //keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
+        }
+
+        private void audioControl1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
+        {
+            //keyframeControl1.CurrentTime = e.AudioPosition;
+        }
+
         public class AudioFileEventArgs : EventArgs
         {
             public readonly string FileName;
@@ -72,21 +97,6 @@ namespace GarageLights.Show
             {
                 FileName = fileName;
             }
-        }
-
-        private void audioControl1_AudioLoaded(object sender, EventArgs e)
-        {
-            keyframeControl1.MaxTime = audioControl1.AudioLength;
-        }
-
-        private void audioControl1_AudioViewChanged(object sender, AudioControl.AudioViewChangedEventArgs e)
-        {
-            keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
-        }
-
-        private void audioControl1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
-        {
-            keyframeControl1.CurrentTime = e.AudioPosition;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace GarageLights
 
         public float LeftTime
         {
-            get => leftTime;
+            get { return leftTime; }
             set
             {
                 UpdateAudioView(value, rightTime);
@@ -70,7 +70,7 @@ namespace GarageLights
 
         public float RightTime
         {
-            get => rightTime;
+            get { return rightTime; }
             set
             {
                 UpdateAudioView(leftTime, value);
@@ -79,7 +79,7 @@ namespace GarageLights
 
         public bool Playing
         {
-            get => playingTask != null && !playingTask.IsCompleted;
+            get { return playingTask != null && !playingTask.IsCompleted; }
         }
 
         private float Quantize(float value)
@@ -144,7 +144,7 @@ namespace GarageLights
 
         public float AudioPosition
         {
-            get => audioPosition;
+            get { return audioPosition; }
             set
             {
                 if (audioFile == null || designMode) return;
