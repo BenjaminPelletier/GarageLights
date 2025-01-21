@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GarageLights.Audio;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,7 +18,7 @@ namespace GarageLights.Show
         private Project project;
 
         public event EventHandler<AudioFileEventArgs> AudioFileChanged;
-        public event EventHandler<AudioControl.AudioPositionChangedEventArgs> AudioPositionChanged;
+        public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
 
         public Multiquence()
         {
@@ -100,16 +101,19 @@ namespace GarageLights.Show
         private void audioControl1_AudioLoaded(object sender, EventArgs e)
         {
             keyframeControl1.MaxTime = audioControl1.AudioLength;
+            showScroller1.MaxTime = audioControl1.AudioLength;
         }
 
-        private void audioControl1_AudioViewChanged(object sender, AudioControl.AudioViewChangedEventArgs e)
+        private void audioControl1_AudioViewChanged(object sender, AudioViewChangedEventArgs e)
         {
             keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
+            showScroller1.SetTimeRange(e.LeftTime, e.RightTime);
         }
 
-        private void audioControl1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
+        private void audioControl1_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
             keyframeControl1.CurrentTime = e.AudioPosition;
+            showScroller1.CurrentTime = e.AudioPosition;
             AudioPositionChanged?.Invoke(this, e);
         }
 
@@ -126,6 +130,11 @@ namespace GarageLights.Show
             {
                 FileName = fileName;
             }
+        }
+
+        private void showScroller1_AudioViewChange(object sender, AudioViewChangedEventArgs e)
+        {
+            audioControl1.UpdateAudioView(e.LeftTime, e.RightTime);
         }
     }
 }

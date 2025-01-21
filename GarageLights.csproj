@@ -68,6 +68,7 @@
     <Compile Include="Audio\AudioControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Audio\EventArgs.cs" />
     <Compile Include="Controllers\DmxSerialController.cs" />
     <Compile Include="Controllers\IController.cs" />
     <Compile Include="Lights\ChannelNode.cs" />

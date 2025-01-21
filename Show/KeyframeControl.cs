@@ -14,6 +14,7 @@ namespace GarageLights.Show
     {
         const float KeyframeSize = 8f;
         static ChannelKeyframe DefaultKeyframe = new ChannelKeyframe() { Value = 0, Style = KeyframeStyle.Linear };
+        const float RowMargin = 2f;
 
         ChannelTreeView rowSource;
         List<Keyframe> keyframes;
@@ -50,7 +51,7 @@ namespace GarageLights.Show
             set
             {
                 currentTime = value;
-                Invalidate();
+                Refresh();
             }
         }
 
@@ -82,7 +83,7 @@ namespace GarageLights.Show
                 DrawKeyframes(e.Graphics);
             }
 
-            if (leftTime <= currentTime && currentTime <= rightTime)
+            if (leftTime <= currentTime && currentTime <= rightTime && leftTime != rightTime)
             {
                 float x = (currentTime - leftTime) / (rightTime - leftTime) * ClientSize.Width;
                 e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
@@ -121,38 +122,52 @@ namespace GarageLights.Show
                 }
             }
 
-            // Draw per-row backgrounds
-            foreach (NodeBounds nodeBounds in rowSource.GetVisibleNodes())
+            // Draw signal representation
+            foreach (var kv in rowFrames)
             {
-                var bounds = nodeBounds.Node.Bounds;
-
-                SizeF labelSize = g.MeasureString(nodeBounds.Node.Text, Font);
-                g.DrawString(nodeBounds.Node.Text, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
-            }
-
-            // Draw interpolation lines between keyframes
-            foreach (var kv in rowFrames) {
                 var bounds = kv.Key.Bounds;
                 var frames = kv.Value;
                 for (int i = 1; i < frames.Count; i++)
                 {
                     TimedChannelKeyframe kf0 = frames[i - 1];
                     TimedChannelKeyframe kf1 = frames[i];
+                    if (kf1.Time < leftTime || kf0.Time > rightTime) { continue; }
                     float x0 = ClientSize.Width * (kf0.Time - leftTime) / (rightTime - leftTime);
                     float x1 = ClientSize.Width * (kf1.Time - leftTime) / (rightTime - leftTime);
-                    if (x1 < leftTime || x0 > rightTime) { continue; }
-                    float y0 = bounds.Bottom + (bounds.Top - bounds.Bottom) * (kf0.Keyframe.Value / 255.0f);
-                    float y1 = bounds.Bottom + (bounds.Top - bounds.Bottom) * (kf1.Keyframe.Value / 255.0f);
+                    float yb = bounds.Bottom - RowMargin;
+                    float y0 = yb - (bounds.Height - 2 * RowMargin) * (kf0.Keyframe.Value / 255.0f);
+                    float y1 = yb - (bounds.Height - 2 * RowMargin) * (kf1.Keyframe.Value / 255.0f);
                     if (kf1.Keyframe.Style == KeyframeStyle.Linear)
                     {
-                        g.DrawLine(Pens.DarkGray, x0, y0, x1, y1);
+                        // g.DrawLine(Pens.DarkGray, x0, y0, x1, y1);
+                        g.FillPolygon(Brushes.LightSkyBlue, new PointF[]
+                        {
+                            new PointF(x0, yb),
+                            new PointF(x0, y0),
+                            new PointF(x1, y1),
+                            new PointF(x1, yb),
+                        });
                     }
                     else if (kf1.Keyframe.Style == KeyframeStyle.Step)
                     {
-                        g.DrawLine(Pens.DarkGray, x0, y0, x1, y0);
-                        g.DrawLine(Pens.DarkGray, x1, y0, x1, y1);
+                        // g.DrawLine(Pens.DarkGray, x0, y0, x1, y0);
+                        g.DrawLine(Pens.LightSkyBlue, x1, y0, x1, y1);
+                        g.FillRectangle(Brushes.LightSkyBlue, x0, y0, x1 - x0, yb - y0);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
                     }
                 }
+            }
+
+            // Draw row labels
+            foreach (NodeBounds nodeBounds in rowSource.GetVisibleNodes())
+            {
+                var bounds = nodeBounds.Node.Bounds;
+
+                SizeF labelSize = g.MeasureString(nodeBounds.Node.Text, Font);
+                g.DrawString(nodeBounds.Node.Text, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
             }
 
             if (keyframes != null)
@@ -175,7 +190,7 @@ namespace GarageLights.Show
                     {
                         TimedChannelKeyframe kf = frames[i];
                         float x = ClientSize.Width * (kf.Time - leftTime) / (rightTime - leftTime);
-                        float y = bounds.Bottom + (bounds.Top - bounds.Bottom) * (kf.Keyframe.Value / 255.0f);
+                        float y = (bounds.Top + bounds.Bottom) / 2;
                         var path = new GraphicsPath();
                         path.AddLine(x, y - KeyframeSize / 2, x + KeyframeSize / 2, y);
                         path.AddLine(x + KeyframeSize / 2, y, x, y + KeyframeSize / 2);

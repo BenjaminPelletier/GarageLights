@@ -1,4 +1,5 @@
-﻿using GarageLights.Properties;
+﻿using GarageLights.Audio;
+using GarageLights.Properties;
 using GarageLights.Show;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -95,7 +96,7 @@ namespace GarageLights
             Text = "Garage Lights - " + Path.GetFileName(filename);
         }
 
-        private void multiquence1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
+        private void multiquence1_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
             tsslAudioPosition.Text = e.AudioPosition.ToString();
         }

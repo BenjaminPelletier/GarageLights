@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-namespace GarageLights
+namespace GarageLights.Audio
 {
     public class AudioControl : UserControl
     {
@@ -87,7 +87,7 @@ namespace GarageLights
             return (float)(Math.Round(value / NAVIGATION_QUANTA_SECONDS, 0) * NAVIGATION_QUANTA_SECONDS);
         }
 
-        private void UpdateAudioView(float newLeftTime, float newRightTime)
+        public void UpdateAudioView(float newLeftTime, float newRightTime)
         {
             if (audioFile == null || designMode)
             {
@@ -134,7 +134,7 @@ namespace GarageLights
             {
                 leftTime = newLeftTime;
                 rightTime = newRightTime;
-                BeginInvoke((Action)(() =>
+                Invoke((Action)(() =>
                 {
                     AudioViewChanged?.Invoke(this, new AudioViewChangedEventArgs(leftTime, rightTime));
                     Invalidate();
@@ -403,28 +403,6 @@ namespace GarageLights
             waveOut?.Dispose();
             audioFile?.Dispose();
             base.Dispose(disposing);
-        }
-
-        public class AudioViewChangedEventArgs : EventArgs
-        {
-            public float LeftTime { get; }
-            public float RightTime { get; }
-
-            public AudioViewChangedEventArgs(float leftTime, float rightTime)
-            {
-                LeftTime = leftTime;
-                RightTime = rightTime;
-            }
-        }
-
-        public class AudioPositionChangedEventArgs : EventArgs
-        {
-            public float AudioPosition { get; }
-
-            public AudioPositionChangedEventArgs(float audioPosition)
-            {
-                AudioPosition = audioPosition;
-            }
         }
 
         public class PlaybackException : Exception

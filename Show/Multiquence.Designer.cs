@@ -32,7 +32,7 @@
             this.tvChannels = new GarageLights.Show.ChannelTreeView();
             this.keyframeControl1 = new GarageLights.Show.KeyframeControl();
             this.showScroller1 = new GarageLights.Show.ShowScroller();
-            this.audioControl1 = new GarageLights.AudioControl();
+            this.audioControl1 = new GarageLights.Audio.AudioControl();
             this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -84,17 +84,20 @@
             this.keyframeControl1.MaxTime = 0F;
             this.keyframeControl1.Name = "keyframeControl1";
             this.keyframeControl1.RowSource = null;
-            this.keyframeControl1.Size = new System.Drawing.Size(576, 210);
+            this.keyframeControl1.Size = new System.Drawing.Size(574, 210);
             this.keyframeControl1.TabIndex = 2;
             // 
             // showScroller1
             // 
             this.showScroller1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.showScroller1.CurrentTime = 0F;
             this.showScroller1.Location = new System.Drawing.Point(6, 5);
             this.showScroller1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.showScroller1.MaxTime = 0F;
             this.showScroller1.Name = "showScroller1";
             this.showScroller1.Size = new System.Drawing.Size(584, 39);
             this.showScroller1.TabIndex = 1;
+            this.showScroller1.AudioViewChange += new System.EventHandler<GarageLights.Audio.AudioViewChangedEventArgs>(this.showScroller1_AudioViewChange);
             // 
             // audioControl1
             // 
@@ -108,8 +111,8 @@
             this.audioControl1.Size = new System.Drawing.Size(584, 149);
             this.audioControl1.TabIndex = 0;
             this.audioControl1.AudioLoaded += new System.EventHandler(this.audioControl1_AudioLoaded);
-            this.audioControl1.AudioViewChanged += new System.EventHandler<GarageLights.AudioControl.AudioViewChangedEventArgs>(this.audioControl1_AudioViewChanged);
-            this.audioControl1.AudioPositionChanged += new System.EventHandler<GarageLights.AudioControl.AudioPositionChangedEventArgs>(this.audioControl1_AudioPositionChanged);
+            this.audioControl1.AudioViewChanged += new System.EventHandler<GarageLights.Audio.AudioViewChangedEventArgs>(this.audioControl1_AudioViewChanged);
+            this.audioControl1.AudioPositionChanged += new System.EventHandler<GarageLights.Audio.AudioPositionChangedEventArgs>(this.audioControl1_AudioPositionChanged);
             this.audioControl1.FileLoadRequested += new System.EventHandler(this.audioControl1_FileLoadRequested);
             // 
             // ofdAudioFile
@@ -137,7 +140,7 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private ShowScroller showScroller1;
-        private AudioControl audioControl1;
+        private GarageLights.Audio.AudioControl audioControl1;
         private KeyframeControl keyframeControl1;
         private ChannelTreeView tvChannels;
         private System.Windows.Forms.OpenFileDialog ofdAudioFile;
