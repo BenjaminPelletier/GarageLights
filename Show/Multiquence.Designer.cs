@@ -29,12 +29,11 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
-            this.toolPanel1 = new GarageLights.Show.ToolPanel();
             this.tvChannels = new GarageLights.Show.ChannelTreeView();
             this.keyframeControl1 = new GarageLights.Show.KeyframeControl();
             this.showScroller1 = new GarageLights.Show.ShowScroller();
             this.audioControl1 = new GarageLights.AudioControl();
+            this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -50,7 +49,6 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.toolPanel1);
             this.splitContainer1.Panel1.Controls.Add(this.tvChannels);
             this.splitContainer1.Panel1.Resize += new System.EventHandler(this.splitContainer1_Panel1_Resize);
             // 
@@ -64,21 +62,6 @@
             this.splitContainer1.SplitterDistance = 222;
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
-            // 
-            // ofdAudioFile
-            // 
-            this.ofdAudioFile.FileName = "song.mp3";
-            this.ofdAudioFile.Filter = "MP3 file|*.mp3|WAV file|*.wav";
-            // 
-            // toolPanel1
-            // 
-            this.toolPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.toolPanel1.Location = new System.Drawing.Point(4, 5);
-            this.toolPanel1.Name = "toolPanel1";
-            this.toolPanel1.Size = new System.Drawing.Size(214, 198);
-            this.toolPanel1.TabIndex = 4;
-            this.toolPanel1.Play += new System.EventHandler(this.toolPanel1_Play);
-            this.toolPanel1.Stop += new System.EventHandler(this.toolPanel1_Stop);
             // 
             // tvChannels
             // 
@@ -101,7 +84,7 @@
             this.keyframeControl1.MaxTime = 0F;
             this.keyframeControl1.Name = "keyframeControl1";
             this.keyframeControl1.RowSource = null;
-            this.keyframeControl1.Size = new System.Drawing.Size(578, 210);
+            this.keyframeControl1.Size = new System.Drawing.Size(576, 210);
             this.keyframeControl1.TabIndex = 2;
             // 
             // showScroller1
@@ -129,6 +112,11 @@
             this.audioControl1.AudioPositionChanged += new System.EventHandler<GarageLights.AudioControl.AudioPositionChangedEventArgs>(this.audioControl1_AudioPositionChanged);
             this.audioControl1.FileLoadRequested += new System.EventHandler(this.audioControl1_FileLoadRequested);
             // 
+            // ofdAudioFile
+            // 
+            this.ofdAudioFile.FileName = "song.mp3";
+            this.ofdAudioFile.Filter = "MP3 file|*.mp3|WAV file|*.wav";
+            // 
             // Multiquence
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -153,6 +141,5 @@
         private KeyframeControl keyframeControl1;
         private ChannelTreeView tvChannels;
         private System.Windows.Forms.OpenFileDialog ofdAudioFile;
-        private ToolPanel toolPanel1;
     }
 }

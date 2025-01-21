@@ -38,10 +38,32 @@
 			}
 		}
 	],
-	"Keyframes": {
-		"Mini beam 1.Dimmer": [
-			{ "Time": 5.2, "Value": 128, "Style": "Step" },
-			{ "Time": 17.8, "Value": 255 },
-		]
-	}
+	"Keyframes": [
+		{
+			"Time": 6.624,
+			"Channels": {
+				"Mini beam 1.Dimmer": { "Value": 255, "Style": "Step" },
+				"Mini beam 1.Red": { "Value": 128, "Style": "Step" },
+			}
+		},
+		{
+			"Time": 7.487,
+			"Channels": {
+				"Mini beam 1.Red": { "Value": 255 },
+			}
+		},
+		{
+			"Time": 8.262,
+			"Channels": {
+				"Mini beam 1.Red": { "Value": 0 },
+				"Mini beam 1.Green": { "Value": 128, "Style": "Step" },
+			}
+		},
+				{
+			"Time": 9.066,
+			"Channels": {
+				"Mini beam 1.Green": { "Value": 255 },
+			}
+		},
+	]
 }

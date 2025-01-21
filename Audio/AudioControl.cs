@@ -246,7 +246,7 @@ namespace GarageLights
                             {
                                 Debug.Print("Playback -> UI thread: AudioPositionChanged");
                                 AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
-                                Invalidate();
+                                Refresh();
                             }));
                         }
                     }
@@ -293,6 +293,7 @@ namespace GarageLights
 
         private void OnPaint(object sender, PaintEventArgs e)
         {
+            Debug.Print("AudioControl.OnPaint");
             var g = e.Graphics;
 
             if (isLoadingAudio)
@@ -368,11 +369,11 @@ namespace GarageLights
                 var deltaTime = timeWidth * deltaX / Width;
                 if (dragStartLeftTime - deltaTime < 0)
                 {
-                    deltaTime = -dragStartLeftTime;
+                    deltaTime = dragStartLeftTime;
                 }
-                if (dragStartRightTime + deltaTime > audioLength)
+                if (dragStartRightTime - deltaTime > audioLength)
                 {
-                    deltaTime = audioLength - dragStartRightTime;
+                    deltaTime = dragStartRightTime - audioLength;
                 }
                 UpdateAudioView(dragStartLeftTime - deltaTime, dragStartRightTime - deltaTime);
             }

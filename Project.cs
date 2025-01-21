@@ -16,7 +16,7 @@ namespace GarageLights
         public string AudioFile;
         public List<Controller> Controllers;
         public List<ChannelNode> ChannelNodes;
-        public Dictionary<string, List<Keyframe>> Keyframes;
+        public List<Keyframe> Keyframes;
 
         public static Project FromFile(string filename)
         {

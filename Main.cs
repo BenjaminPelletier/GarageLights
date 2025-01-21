@@ -32,13 +32,14 @@ namespace GarageLights
             InitializeComponent();
 
             multiquence1 = new Multiquence();
-            this.multiquence1.Location = new Point(ClientRectangle.Left, menuStrip1.Bottom);
+            this.multiquence1.Location = new Point(ClientRectangle.Left, toolStrip1.Bottom);
             this.multiquence1.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.multiquence1.Name = "multiquence1";
-            this.multiquence1.Size = new Size(ClientSize.Width - 6, ClientSize.Height - multiquence1.Top - 6);
+            this.multiquence1.Size = new Size(ClientSize.Width - 6, statusStrip1.Top - toolStrip1.Bottom - 12);
             this.multiquence1.TabIndex = 0;
             multiquence1.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             this.Controls.Add(this.multiquence1);
+            this.multiquence1.AudioPositionChanged += multiquence1_AudioPositionChanged;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -92,6 +93,21 @@ namespace GarageLights
             multiquence1.Project = project;
             settings.ProjectFile = filename;
             Text = "Garage Lights - " + Path.GetFileName(filename);
+        }
+
+        private void multiquence1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
+        {
+            tsslAudioPosition.Text = e.AudioPosition.ToString();
+        }
+
+        private void tsbPlay_Click(object sender, EventArgs e)
+        {
+            multiquence1.Play();
+        }
+
+        private void tsbStop_Click(object sender, EventArgs e)
+        {
+            multiquence1.Stop();
         }
     }
 }

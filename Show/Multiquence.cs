@@ -16,7 +16,8 @@ namespace GarageLights.Show
         private bool designMode;
         private Project project;
 
-        public EventHandler<AudioFileEventArgs> AudioFileChanged;
+        public event EventHandler<AudioFileEventArgs> AudioFileChanged;
+        public event EventHandler<AudioControl.AudioPositionChangedEventArgs> AudioPositionChanged;
 
         public Multiquence()
         {
@@ -42,7 +43,7 @@ namespace GarageLights.Show
 
                 if (project.Keyframes == null)
                 {
-                    project.Keyframes = new Dictionary<string, List<Keyframe>>();
+                    project.Keyframes = new List<Keyframe>();
                 }
                 keyframeControl1.Keyframes = project.Keyframes;
 
@@ -51,6 +52,16 @@ namespace GarageLights.Show
                     audioControl1.LoadAudio(project.AudioFile);
                 }
             }
+        }
+
+        public void Play()
+        {
+            audioControl1.Play();
+        }
+
+        public void Stop()
+        {
+            audioControl1.Stop();
         }
 
         private void toolPanel1_Play(object sender, EventArgs e)
@@ -67,7 +78,6 @@ namespace GarageLights.Show
         {
             tvChannels.Width = splitContainer1.Panel1.Width - 2 * tvChannels.Left;
             tvChannels.Height = splitContainer1.Panel1.Height - tvChannels.Top - tvChannels.Left;
-            toolPanel1.Width = tvChannels.Width;
         }
 
         private void splitContainer1_Panel2_Resize(object sender, EventArgs e)
@@ -100,6 +110,7 @@ namespace GarageLights.Show
         private void audioControl1_AudioPositionChanged(object sender, AudioControl.AudioPositionChangedEventArgs e)
         {
             keyframeControl1.CurrentTime = e.AudioPosition;
+            AudioPositionChanged?.Invoke(this, e);
         }
 
         private void tvChannels_NodeLayoutChanged(object sender, EventArgs e)
