@@ -12,18 +12,20 @@ namespace GarageLights.Show
 {
     internal class ShowScroller : UserControl
     {
-        float maxTime;
-        float currentTime;
+        private AudioPlayer audioPlayer;
+
         float leftTime;
         float rightTime;
 
+        private ThrottledUiCall refresh;
         float tDragOrigin;
         bool isDragging;
 
-        public event EventHandler<AudioViewChangedEventArgs> AudioViewChange;
+        public event EventHandler<AudioViewChangedEventArgs> NewViewRequested;
 
         public ShowScroller()
         {
+            refresh = new ThrottledUiCall(this, Refresh);
             DoubleBuffered = true;
             Paint += ShowScroller_Paint;
             MouseDown += ShowScroller_MouseDown;
@@ -31,12 +33,12 @@ namespace GarageLights.Show
             MouseUp += ShowScroller_MouseUp;
         }
 
-        public float MaxTime
+        public AudioPlayer AudioPlayer
         {
-            get { return maxTime; }
             set
             {
-                maxTime = value;
+                audioPlayer = value;
+                audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
             }
         }
 
@@ -47,33 +49,31 @@ namespace GarageLights.Show
             Invalidate();
         }
 
-        public float CurrentTime
+        private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
-            get { return currentTime; }
-            set
-            {
-                currentTime = value;
-                Refresh();
-            }
+            refresh.Trigger();
         }
 
         private void ShowScroller_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.Clear(BackColor);
-            if (maxTime == 0) { return; }
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
 
+            float maxTime = audioPlayer.AudioLength;
             float x0 = ClientSize.Width * leftTime / maxTime;
             float x1 = ClientSize.Width * rightTime / maxTime;
             e.Graphics.FillRectangle(Brushes.DarkGray, 0, 0, x0 - 1, ClientSize.Height);
             e.Graphics.FillRectangle(Brushes.DarkGray, x1 + 1, 0, ClientSize.Width - x1 - 1, ClientSize.Height);
 
-            float x = ClientSize.Width * currentTime / maxTime;
+            float x = ClientSize.Width * audioPlayer.AudioPosition / maxTime;
             e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
         }
 
         private void ShowScroller_MouseDown(object sender, MouseEventArgs e)
         {
-            float t = e.X * maxTime / ClientSize.Width;
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
+
+            float t = e.X * audioPlayer.AudioLength / ClientSize.Width;
 
             if (e.Button == MouseButtons.Left)
             {
@@ -84,7 +84,9 @@ namespace GarageLights.Show
 
         private void ShowScroller_MouseMove(object sender, MouseEventArgs e)
         {
-            float t = e.X * maxTime / ClientSize.Width;
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
+
+            float t = e.X * audioPlayer.AudioLength / ClientSize.Width;
 
             if (e.Button == MouseButtons.Left && isDragging)
             {
@@ -94,7 +96,9 @@ namespace GarageLights.Show
 
         private void ShowScroller_MouseUp(object sender, MouseEventArgs e)
         {
-            float t = e.X * maxTime / ClientSize.Width;
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
+
+            float t = e.X * audioPlayer.AudioLength / ClientSize.Width;
             if (e.Button == MouseButtons.Left && !isDragging)
             {
                 ChangeAudioView(t - leftTime);
@@ -103,6 +107,8 @@ namespace GarageLights.Show
         
         private float ChangeAudioView(float dt)
         {
+            float maxTime = audioPlayer.AudioLength;
+
             if (leftTime + dt < 0)
             {
                 dt = -leftTime;
@@ -111,7 +117,7 @@ namespace GarageLights.Show
             {
                 dt = maxTime - rightTime;
             }
-            AudioViewChange?.Invoke(this, new AudioViewChangedEventArgs(leftTime + dt, rightTime + dt));
+            NewViewRequested?.Invoke(this, new AudioViewChangedEventArgs(leftTime + dt, rightTime + dt));
             return dt;
         }
     }

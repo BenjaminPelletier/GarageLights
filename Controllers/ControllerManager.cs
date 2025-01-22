@@ -1,4 +1,5 @@
-﻿using GarageLights.Lights;
+﻿using GarageLights.Keyframes;
+using GarageLights.Lights;
 using GarageLights.Show;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace GarageLights.Controllers
 {
-    class ControllerManager
+    class ControllerManager : IDisposable
     {
         Dictionary<string, IController> controllers;
 
@@ -102,6 +103,15 @@ namespace GarageLights.Controllers
             }
 
             throw new NotImplementedException("Could not determine how to make '" + controllerDefinition.Name + "' controller");
+        }
+
+        public void Dispose()
+        {
+            foreach (var kvp in controllers)
+            {
+                kvp.Value.Dispose();
+            }
+            controllers.Clear();
         }
     }
 }

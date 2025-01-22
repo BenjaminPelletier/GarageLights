@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Keyframes;
 using GarageLights.Lights;
 using System;
 using System.Collections.Generic;
@@ -17,16 +18,7 @@ namespace GarageLights.Show
     {
         private bool designMode;
         private Project project;
-
-        public event EventHandler<AudioFileEventArgs> AudioFileChanged;
-        public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
-        public event EventHandler<AudioControl.PlaybackErrorEventArgs> PlaybackError;
-
-        /// <summary>
-        /// Playback continued, with a new audio position.
-        /// This event is invoked on the playback thread rather than the UI thread.
-        /// </summary>
-        public event EventHandler<PlaybackContinuedEventArgs> PlaybackContinued;
+        private AudioPlayer audioPlayer;
 
         public Multiquence()
         {
@@ -34,8 +26,22 @@ namespace GarageLights.Show
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
             keyframeControl1.RowSource = tvChannels;
-            controlPanel1.KeyframeControl = keyframeControl1;
+            controlPanel1.KeyframeManager = keyframeControl1;
         }
+
+        public AudioPlayer AudioPlayer
+        {
+            set
+            {
+                audioPlayer = value;
+                audioControl1.AudioPlayer = audioPlayer;
+                keyframeControl1.AudioPlayer = audioPlayer;
+                showScroller1.AudioPlayer = audioPlayer;
+                controlPanel1.AudioPlayer = audioPlayer;
+            }
+        }
+
+        public IKeyframeManger KeyframeManager { get { return keyframeControl1; } }
 
         public Project Project
         {
@@ -55,36 +61,26 @@ namespace GarageLights.Show
 
                     if (project.Keyframes == null)
                     {
-                        project.Keyframes = new List<Keyframe>();
+                        project.Keyframes = new List<ShowKeyframe>();
                     }
                     keyframeControl1.Keyframes = project.Keyframes;
 
                     if (project.AudioFile != null)
                     {
-                        audioControl1.LoadAudio(project.AudioFile);
+                        audioPlayer.LoadAudio(project.AudioFile);
                     }
                 }
             }
         }
 
-        public void Play()
-        {
-            audioControl1.Play();
-        }
-
-        public void Stop()
-        {
-            audioControl1.Stop();
-        }
-
         private void toolPanel1_Play(object sender, EventArgs e)
         {
-            audioControl1.Play();
+            audioPlayer.Play();
         }
 
         private void toolPanel1_Stop(object sender, EventArgs e)
         {
-            audioControl1.Stop();
+            audioPlayer.Stop();
         }
 
         private void splitContainer1_Panel1_Resize(object sender, EventArgs e)
@@ -106,29 +102,14 @@ namespace GarageLights.Show
         {
             if (ofdAudioFile.ShowDialog() == DialogResult.OK)
             {
-                audioControl1.LoadAudio(ofdAudioFile.FileName);
-                AudioFileChanged?.Invoke(this, new AudioFileEventArgs(ofdAudioFile.FileName));
+                audioPlayer.LoadAudio(ofdAudioFile.FileName);
             }
-        }
-
-        private void audioControl1_AudioLoaded(object sender, EventArgs e)
-        {
-            keyframeControl1.MaxTime = audioControl1.AudioLength;
-            showScroller1.MaxTime = audioControl1.AudioLength;
         }
 
         private void audioControl1_AudioViewChanged(object sender, AudioViewChangedEventArgs e)
         {
             keyframeControl1.SetTimeRange(e.LeftTime, e.RightTime);
             showScroller1.SetTimeRange(e.LeftTime, e.RightTime);
-        }
-
-        private void audioControl1_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
-        {
-            controlPanel1.CurrentTime = e.AudioPosition;
-            keyframeControl1.CurrentTime = e.AudioPosition;
-            showScroller1.CurrentTime = e.AudioPosition;
-            AudioPositionChanged?.Invoke(this, e);
         }
 
         private void tvChannels_NodeLayoutChanged(object sender, EventArgs e)
@@ -146,48 +127,9 @@ namespace GarageLights.Show
             }
         }
 
-        private void showScroller1_AudioViewChange(object sender, AudioViewChangedEventArgs e)
+        private void showScroller1_NewViewRequested(object sender, AudioViewChangedEventArgs e)
         {
             audioControl1.UpdateAudioView(e.LeftTime, e.RightTime);
-        }
-
-        private void audioControl1_PlaybackContinued(object sender, AudioPositionChangedEventArgs e)
-        {
-            if (PlaybackContinued != null)
-            {
-                var keyframes = keyframeControl1.KeyframesByControllerAndAddress;
-                PlaybackContinued.Invoke(this, new PlaybackContinuedEventArgs(e.AudioPosition, keyframes));
-            }
-        }
-
-        private void audioControl1_PlaybackError(object sender, AudioControl.PlaybackErrorEventArgs e)
-        {
-            PlaybackError?.Invoke(this, e);
-        }
-
-        private void controlPanel1_Seek(object sender, AudioPositionChangedEventArgs e)
-        {
-            audioControl1.AudioPosition = e.AudioPosition;
-        }
-    }
-
-    internal class PlaybackContinuedEventArgs : EventArgs
-    {
-        public float AudioPosition { get; }
-
-        /// <summary>
-        /// Per-controller, per-address keyframe information.
-        /// Key: Controller name
-        /// Value:
-        ///     Key: Address
-        ///     Value: Value keyframes for that address
-        /// </summary>
-        public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> Keyframes { get; }
-
-        public PlaybackContinuedEventArgs(float audioPosition, Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframes)
-        {
-            AudioPosition = audioPosition;
-            Keyframes = keyframes;
         }
     }
 }

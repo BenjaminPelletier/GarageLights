@@ -8,6 +8,7 @@ using GarageLights.Lights;
 using Newtonsoft.Json;
 using System.IO;
 using GarageLights.Show;
+using GarageLights.Keyframes;
 
 namespace GarageLights
 {
@@ -16,7 +17,7 @@ namespace GarageLights
         public string AudioFile;
         public List<Controller> Controllers;
         public List<ChannelNode> ChannelNodes;
-        public List<Keyframe> Keyframes;
+        public List<ShowKeyframe> Keyframes;
 
         public static Project FromFile(string filename)
         {

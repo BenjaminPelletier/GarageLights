@@ -68,12 +68,13 @@
     <Compile Include="Audio\AudioControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Audio\EventArgs.cs" />
+    <Compile Include="Audio\AudioPlayer.cs" />
     <Compile Include="Controllers\ControllerManager.cs" />
     <Compile Include="Controllers\DmxSerialController.cs" />
     <Compile Include="Controllers\DummyController.cs" />
     <Compile Include="Controllers\IController.cs" />
     <Compile Include="Controllers\WemoController.cs" />
+    <Compile Include="Keyframes\IKeyframeManger.cs" />
     <Compile Include="Lights\ChannelNode.cs" />
     <Compile Include="Lights\Controller.cs" />
     <Compile Include="Lights\Channel.cs" />
@@ -96,8 +97,8 @@
     <Compile Include="Show\ControlPanel.Designer.cs">
       <DependentUpon>ControlPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Show\Keyframes.cs" />
-    <Compile Include="Show\KeyframeControl.cs">
+    <Compile Include="Keyframes\Keyframes.cs" />
+    <Compile Include="Keyframes\KeyframeControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Show\Multiquence.cs">
@@ -113,6 +114,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Audio\ViewableWaveform.cs" />
+    <Compile Include="ThrottledUiCall.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

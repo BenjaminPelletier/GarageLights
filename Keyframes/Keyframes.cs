@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarageLights.Show
+namespace GarageLights.Keyframes
 {
     enum KeyframeStyle
     {
@@ -18,7 +18,7 @@ namespace GarageLights.Show
         public KeyframeStyle Style = KeyframeStyle.Linear;
     }
 
-    class Keyframe
+    class ShowKeyframe
     {
         public float Time;
 

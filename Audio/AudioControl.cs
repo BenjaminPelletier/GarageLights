@@ -9,63 +9,53 @@ using System.ComponentModel;
 
 namespace GarageLights.Audio
 {
-    public class AudioControl : UserControl
+    internal class AudioControl : UserControl
     {
         const float MIN_WINDOW_SECONDS = 0.5f;
         const float NAVIGATION_QUANTA_SECONDS = 0.001f;
 
-        bool designMode;
-
-        private WaveOutEvent waveOut;
-        private AudioFileReader audioFile;
-
-        private float audioLength;
+        private AudioPlayer audioPlayer;
         private ViewableWaveform viewableWaveform;
         private Bitmap waveformBitmap;
 
         private float leftTime;
         private float rightTime;
-        private float audioPosition;
-        private float timePlaybackStarted;
 
-        private bool isLoadingAudio;
+        private ThrottledUiCall refresh;
         private bool isDragging;
         private Point dragStartPoint;
         private float dragStartLeftTime;
-        private Task<bool> playingTask;
 
-        public event EventHandler AudioLoaded;
         public event EventHandler<AudioViewChangedEventArgs> AudioViewChanged;
-        public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
-
-        /// <summary>
-        /// Playback continued, with a new audio position.
-        /// This event is invoked on the playback thread rather than the UI thread.
-        /// </summary>
-        public event EventHandler<AudioPositionChangedEventArgs> PlaybackContinued;
-
-        public event EventHandler PlaybackStarted;
-        public event EventHandler<PlaybackErrorEventArgs> PlaybackError;
-        public event EventHandler PlaybackStopped;
         public event EventHandler FileLoadRequested;
 
         public AudioControl()
         {
-            designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
+            refresh = new ThrottledUiCall(this, Refresh);
+            bool designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             DoubleBuffered = true;
             if (!designMode)
             {
-                MouseWheel += OnMouseWheel;
-                MouseDown += OnMouseDown;
-                MouseUp += OnMouseUp;
-                MouseMove += OnMouseMove;
-                Paint += OnPaint;
-                MouseDoubleClick += OnMouseDoubleClick;
-                Resize += OnResize;
+                MouseWheel += AudioControl_MouseWheel;
+                MouseDown += AudioControl_MouseDown;
+                MouseUp += AudioControl_MouseUp;
+                MouseMove += AudioControl_MouseMove;
+                Paint += AudioControl_Paint;
+                MouseDoubleClick += AudioControl_MouseDoubleClick;
+                Resize += AudioControl_Resize;
             }
         }
 
-        public float AudioLength => audioLength;
+        public AudioPlayer AudioPlayer
+        {
+            set
+            {
+                audioPlayer = value;
+                audioPlayer.LoadingAudio += audioPlayer_LoadingAudio;
+                audioPlayer.AudioLoaded += audioPlayer_AudioLoaded;
+                audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
+            }
+        }
 
         public float LeftTime
         {
@@ -85,10 +75,7 @@ namespace GarageLights.Audio
             }
         }
 
-        public bool Playing
-        {
-            get { return playingTask != null && !playingTask.IsCompleted; }
-        }
+        private bool AudioLoaded { get { return audioPlayer != null && audioPlayer.IsAudioLoaded; } }
 
         private float Quantize(float value)
         {
@@ -97,10 +84,7 @@ namespace GarageLights.Audio
 
         public void UpdateAudioView(float newLeftTime, float newRightTime)
         {
-            if (audioFile == null || designMode)
-            {
-                return;
-            }
+            if (!AudioLoaded) { return; }
 
             newLeftTime = Quantize(newLeftTime);
             newRightTime = Quantize(newRightTime);
@@ -113,6 +97,7 @@ namespace GarageLights.Audio
                 newRightTime = Quantize(timeCenter + 0.5f * MIN_WINDOW_SECONDS);
             }
 
+            float audioLength = audioPlayer.AudioLength;
             if (timeWidth > audioLength)
             {
                 newLeftTime = 0;
@@ -150,192 +135,42 @@ namespace GarageLights.Audio
             }
         }
 
-        public float AudioPosition
-        {
-            get { return audioPosition; }
-            set
-            {
-                if (audioFile == null || designMode) return;
-
-                bool play = false;
-                if (Playing)
-                {
-                    play = true;
-                    Stop();
-                }
-                UpdateAudioPosition(value);
-                if (play)
-                {
-                    Play();
-                }
-            }
-        }
-
-        private void UpdateAudioPosition(float newAudioPosition)
-        {
-            audioPosition = Math.Max(0, Math.Min(newAudioPosition, audioLength));
-            audioFile.Position = (long)(audioPosition * audioFile.WaveFormat.AverageBytesPerSecond);
-            BeginInvoke((Action)(() =>
-            {
-                AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
-                Invalidate();
-            }));
-        }
-
-        public void LoadAudio(string filePath)
-        {
-            if (isLoadingAudio)
-            {
-                throw new InvalidOperationException("Tried to LoadAudio while already loading audio");
-            }
-            isLoadingAudio = true;
-            new Thread(() =>
-            {
-                try
-                {
-                    LoadAudioWorker(filePath);
-                }
-                catch (Exception ex)
-                {
-                    Debug.Print("LoadAudio error: " + ex);
-                }
-            })
-            { IsBackground = true }.Start();
-            Invalidate();
-        }
-
-        private void LoadAudioWorker(string filePath)
-        {
-            var newAudioFile = new AudioFileReader(filePath);
-            var newWaveOut = new WaveOutEvent();
-            newWaveOut.Init(newAudioFile);
-            var newViewableWaveform = new ViewableWaveform(newAudioFile);
-
-            waveOut?.Dispose();
-            audioFile?.Dispose();
-
-            audioFile = newAudioFile;
-            waveOut = newWaveOut;
-            audioLength = (float)audioFile.TotalTime.TotalSeconds;
-            viewableWaveform = newViewableWaveform;
-
-            isLoadingAudio = false;
-            AudioLoaded?.Invoke(this, EventArgs.Empty);
-            UpdateAudioView(0, audioLength);
-            UpdateAudioPosition(0);
-        }
-
-        public void Play()
-        {
-            if (waveOut != null && Playing)
-            {
-                return;
-            }
-
-            var tcs = new TaskCompletionSource<bool>();
-            playingTask = tcs.Task;
-
-            timePlaybackStarted = (float)audioFile.CurrentTime.TotalSeconds;
-            waveOut.Play();
-
-            new Thread(() =>
-            {
-                try
-                {
-                    IAsyncResult uiResult = null;
-                    bool uiThread = false;
-                    while (waveOut.PlaybackState == PlaybackState.Playing)
-                    {
-                        var newPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
-                        //Debug.Print("Playback thread: new position " + newPosition);
-                        audioPosition = newPosition;
-
-                        if (uiThread)
-                        {
-                            if (uiResult == null || uiResult.IsCompleted)
-                            {
-                                uiResult = BeginInvoke((Action)(() =>
-                                {
-                                    //Debug.Print("Playback -> UI thread: AudioPositionChanged");
-                                    // TODO: catch errors in AudioPositionChanged handlers
-                                    AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
-                                    Refresh();
-                                }));
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                PlaybackContinued?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
-                            }
-                            catch (Exception ex)
-                            {
-                                waveOut.Pause();
-                                audioPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
-                                waveOut.Stop();
-                                if (PlaybackError != null)
-                                {
-                                    Invoke((Action)(() =>
-                                    {
-                                        PlaybackError.Invoke(this, new PlaybackErrorEventArgs(new PlaybackException("An error occurred in a PlaybackContinued event handler", ex)));
-                                    }));
-                                }
-                            }
-                        }
-                        uiThread = !uiThread;
-                    }
-                    tcs.TrySetResult(true);
-                }
-                catch (Exception ex)
-                {
-                    Debug.Print("Playback thread: exception " + ex);
-                    if (PlaybackError != null)
-                    {
-                        Invoke((Action)(() =>
-                        {
-                            PlaybackError.Invoke(this, new PlaybackErrorEventArgs(new PlaybackException("An error occurred during playback", ex)));
-                        }));
-                    }
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    Debug.Print("Playback thread: finally");
-                    if (IsHandleCreated)
-                    {
-                        BeginInvoke((Action)(() => PlaybackStopped?.Invoke(this, EventArgs.Empty)));
-                    }
-                }
-            })
-            { IsBackground = true }.Start();
-            PlaybackStarted?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void Stop()
-        {
-            if (Playing)
-            {
-                waveOut.Pause();
-                audioPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
-                waveOut.Stop();
-                playingTask.Wait();
-            }
-        }
-
         private float TimeAt(float x)
         {
             return leftTime + (rightTime - leftTime) * x / Width;
         }
 
-        private void OnPaint(object sender, PaintEventArgs e)
+        private void audioPlayer_LoadingAudio(object sender, EventArgs e)
         {
-            Debug.Print("AudioControl.OnPaint");
+            BeginInvoke((Action)Invalidate);
+        }
+
+        private void audioPlayer_AudioLoaded(object sender, AudioLoadedEventArgs e)
+        {
+            viewableWaveform = new ViewableWaveform(e.AudioFile);
+            UpdateAudioView(0, audioPlayer.AudioLength);
+            BeginInvoke((Action)Invalidate);
+        }
+
+        private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
+        {
+            refresh.Trigger();
+        }
+
+        private void AudioControl_Paint(object sender, PaintEventArgs e)
+        {
             var g = e.Graphics;
 
-            if (isLoadingAudio)
+            if (audioPlayer == null)
+            {
+                g.Clear(BackColor);
+                return;
+            }
+
+            if (audioPlayer.IsLoadingAudio)
             {
                 g.Clear(Color.LightYellow);
+                return;
             }
 
             // Draw waveform
@@ -345,6 +180,7 @@ namespace GarageLights.Audio
             }
 
             // Draw AudioPosition line
+            float audioPosition = audioPlayer.AudioPosition;
             if (audioPosition >= leftTime && audioPosition <= rightTime)
             {
                 float positionX = leftTime != rightTime ? (audioPosition - leftTime) / (rightTime - leftTime) * ClientSize.Width : 0;
@@ -352,9 +188,9 @@ namespace GarageLights.Audio
             }
         }
 
-        private void OnMouseWheel(object sender, MouseEventArgs e)
+        private void AudioControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            if (audioFile == null) return;
+            if (!AudioLoaded) return;
 
             const float ZOOM_PER_WHEEL = 0.7f;
             float zoomAmount = e.Delta > 0 ? ZOOM_PER_WHEEL : (1.0f / ZOOM_PER_WHEEL);
@@ -366,7 +202,7 @@ namespace GarageLights.Audio
             );
         }
 
-        private void OnMouseDown(object sender, MouseEventArgs e)
+        private void AudioControl_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Middle)
             {
@@ -374,31 +210,16 @@ namespace GarageLights.Audio
                 dragStartPoint = e.Location;
                 dragStartLeftTime = leftTime;
             }
-            else if (e.Button == MouseButtons.Left)
+            else if (e.Button == MouseButtons.Left && audioPlayer != null && audioPlayer.IsAudioLoaded)
             {
-                if (Playing)
-                {
-                    Stop();
-                }
-                AudioPosition = TimeAt(e.X);
+                audioPlayer.Stop();
+                audioPlayer.AudioPosition = TimeAt(e.X);
             }
         }
 
-        private void OnMouseUp(object sender, MouseEventArgs e)
+        private void AudioControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Middle)
-            {
-                isDragging = false;
-            }
-            else if (audioFile == null)
-            {
-                FileLoadRequested?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-        private void OnMouseMove(object sender, MouseEventArgs e)
-        {
-            if (isDragging && audioFile != null)
+            if (isDragging && audioPlayer != null && audioPlayer.IsAudioLoaded)
             {
                 float timeWidth = rightTime - leftTime;
                 float dragStartRightTime = dragStartLeftTime + timeWidth;
@@ -408,6 +229,7 @@ namespace GarageLights.Audio
                 {
                     deltaTime = dragStartLeftTime;
                 }
+                float audioLength = audioPlayer.AudioLength;
                 if (dragStartRightTime - deltaTime > audioLength)
                 {
                     deltaTime = dragStartRightTime - audioLength;
@@ -416,15 +238,27 @@ namespace GarageLights.Audio
             }
         }
 
-        private void OnMouseDoubleClick(object sender, MouseEventArgs e)
+        private void AudioControl_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Middle)
             {
-                Play();
+                isDragging = false;
+            }
+            else if (audioPlayer == null || !audioPlayer.IsAudioLoaded)
+            {
+                FileLoadRequested?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        private void OnResize(object sender, EventArgs e)
+        private void AudioControl_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && audioPlayer != null || audioPlayer.IsAudioLoaded)
+            {
+                audioPlayer.Play();
+            }
+        }
+
+        private void AudioControl_Resize(object sender, EventArgs e)
         {
             if (waveformBitmap != null)
             {
@@ -434,28 +268,17 @@ namespace GarageLights.Audio
             UpdateAudioView(leftTime, rightTime);
             Invalidate();
         }
+    }
 
-        protected override void Dispose(bool disposing)
+    public class AudioViewChangedEventArgs : EventArgs
+    {
+        public float LeftTime { get; }
+        public float RightTime { get; }
+
+        public AudioViewChangedEventArgs(float leftTime, float rightTime)
         {
-            if (Playing) { Stop(); }
-            waveOut?.Dispose();
-            audioFile?.Dispose();
-            base.Dispose(disposing);
-        }
-
-        public class PlaybackException : Exception
-        {
-            public PlaybackException(string message, Exception innerException) : base(message, innerException) { }
-        }
-
-        public class PlaybackErrorEventArgs : EventArgs
-        {
-            public readonly PlaybackException Error;
-
-            public PlaybackErrorEventArgs(PlaybackException error)
-            {
-                Error = error;
-            }
+            LeftTime = leftTime;
+            RightTime = rightTime;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using GarageLights.Lights;
+﻿using GarageLights.Audio;
+using GarageLights.Lights;
+using GarageLights.Show;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
@@ -9,20 +11,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GarageLights.Show
+namespace GarageLights.Keyframes
 {
-    internal class KeyframeControl : UserControl
+    internal class KeyframeControl : UserControl, IKeyframeManger
     {
         const float KeyframeSize = 8f;
         static ChannelKeyframe DefaultKeyframe = new ChannelKeyframe() { Value = 0, Style = KeyframeStyle.Linear };
         const float RowMargin = 2f;
 
+        AudioPlayer audioPlayer;
         ChannelTreeView rowSource;
-        List<Keyframe> keyframes;
+
+        private ThrottledUiCall refresh;
+
+        List<ShowKeyframe> keyframes;
         Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
-        Keyframe activeKeyframe;
-        float maxTime;
-        float currentTime;
+        ShowKeyframe activeKeyframe;
+
         float leftTime;
         float rightTime;
 
@@ -30,16 +35,17 @@ namespace GarageLights.Show
 
         public KeyframeControl() : base()
         {
+            refresh = new ThrottledUiCall(this, Refresh);
             DoubleBuffered = true;
             Paint += KeyframeControl_Paint;
         }
 
-        public float MaxTime
+        public AudioPlayer AudioPlayer
         {
-            get { return maxTime; }
             set
             {
-                maxTime = value;
+                audioPlayer = value;
+                audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
             }
         }
 
@@ -48,16 +54,6 @@ namespace GarageLights.Show
             this.leftTime = leftTime;
             this.rightTime = rightTime;
             Invalidate();
-        }
-
-        public float CurrentTime
-        {
-            get { return currentTime; }
-            set
-            {
-                currentTime = value;
-                Refresh();
-            }
         }
 
         public ChannelTreeView RowSource
@@ -70,7 +66,14 @@ namespace GarageLights.Show
             }
         }
 
-        public List<Keyframe> Keyframes
+        private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
+        {
+            refresh.Trigger();
+        }
+
+        #region IKeyframeManager
+
+        public List<ShowKeyframe> Keyframes
         {
             get { return keyframes; }
             set
@@ -80,7 +83,7 @@ namespace GarageLights.Show
             }
         }
 
-        public Keyframe ActiveKeyframe
+        public ShowKeyframe ActiveKeyframe
         {
             get { return activeKeyframe; }
             set
@@ -94,8 +97,6 @@ namespace GarageLights.Show
                 }
             }
         }
-
-        #region Keyframe organization
 
         public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> KeyframesByControllerAndAddress
         {
@@ -114,12 +115,12 @@ namespace GarageLights.Show
             }
         }
 
-        private static Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> OrganizeKeyframesByControllerAndAddress(List<Keyframe> keyframes, IEnumerable<ChannelNode> channelNodes)
+        private static Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> OrganizeKeyframesByControllerAndAddress(List<ShowKeyframe> keyframes, IEnumerable<ChannelNode> channelNodes)
         {
             Dictionary<string, Channel> channelsByFullName = MapChannelNodes(channelNodes);
 
             var addressKeyframesByController = new Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>>();
-            foreach (Keyframe f in keyframes)
+            foreach (ShowKeyframe f in keyframes)
             {
                 if (f.Channels == null) { continue; }
                 foreach (var fullChannelNameAndKeyframe in f.Channels)
@@ -184,13 +185,14 @@ namespace GarageLights.Show
         private void KeyframeControl_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.Clear(BackColor);
-            if (maxTime == 0) { return; }
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
 
             if (rowSource != null)
             {
                 DrawKeyframes(e.Graphics);
             }
 
+            float currentTime = audioPlayer.AudioPosition;
             if (leftTime <= currentTime && currentTime <= rightTime && leftTime != rightTime)
             {
                 float x = (currentTime - leftTime) / (rightTime - leftTime) * ClientSize.Width;
@@ -205,6 +207,7 @@ namespace GarageLights.Show
 
         private void DrawKeyframes(Graphics g)
         {
+            float maxTime = audioPlayer.AudioLength;
             var rowFrames = new Dictionary<ChannelNodeTreeNode, List<TimedChannelKeyframe>>();
 
             // Calculate keyframes per row
@@ -284,7 +287,7 @@ namespace GarageLights.Show
             if (keyframes != null)
             {
                 // Draw keyframe times
-                foreach (Keyframe f in keyframes)
+                foreach (ShowKeyframe f in keyframes)
                 {
                     if (f.Time < leftTime || f.Time > rightTime) { continue; }
                     float x = ClientSize.Width * (f.Time - leftTime) / (rightTime - leftTime);

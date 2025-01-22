@@ -159,9 +159,6 @@ namespace GarageLights
             this.multiquence1.Project = null;
             this.multiquence1.Size = new System.Drawing.Size(1420, 578);
             this.multiquence1.TabIndex = 4;
-            this.multiquence1.AudioPositionChanged += new System.EventHandler<GarageLights.Audio.AudioPositionChangedEventArgs>(this.multiquence1_AudioPositionChanged);
-            this.multiquence1.PlaybackError += new System.EventHandler<GarageLights.Audio.AudioControl.PlaybackErrorEventArgs>(this.multiquence1_PlaybackError);
-            this.multiquence1.PlaybackContinued += new System.EventHandler<GarageLights.Show.PlaybackContinuedEventArgs>(this.multiquence1_PlaybackContinued);
             // 
             // frmMain
             // 

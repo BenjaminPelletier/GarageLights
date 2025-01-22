@@ -8,45 +8,47 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GarageLights.Audio;
+using GarageLights.Keyframes;
 
 namespace GarageLights.Show
 {
     internal partial class ControlPanel : UserControl
     {
-        private float currentTime;
-        private KeyframeControl keyframeControl;
-
-        public event EventHandler<AudioPositionChangedEventArgs> Seek;
+        private AudioPlayer audioPlayer;
+        private IKeyframeManger keyframeManager;
 
         public ControlPanel()
         {
             InitializeComponent();
         }
 
-        public KeyframeControl KeyframeControl
+        public AudioPlayer AudioPlayer
         {
             set
             {
-                keyframeControl = value;
-                keyframeControl.ActiveKeyframeChanged += KeyframeControl_ActiveKeyframeChanged;
+                audioPlayer = value;
+            }
+        }
+
+        public IKeyframeManger KeyframeManager
+        {
+            set
+            {
+                keyframeManager = value;
+                keyframeManager.ActiveKeyframeChanged += KeyframeControl_ActiveKeyframeChanged;
                 KeyframeControl_ActiveKeyframeChanged(this, EventArgs.Empty);
             }
         }
 
-        public float CurrentTime
+        private void SeekKeyframe(int di)
         {
-            set
-            {
-                currentTime = value;
-            }
-        }
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
+            if (keyframeManager == null || keyframeManager.Keyframes.Count == 0) { return; }
 
-        public void ChangeKeyframe(int di)
-        {
-            if (keyframeControl.Keyframes.Count == 0) { return; }
+            float currentTime = audioPlayer.AudioPosition;
 
-            Keyframe bestMatch = null;
-            foreach (Keyframe f in keyframeControl.Keyframes)
+            ShowKeyframe bestMatch = null;
+            foreach (ShowKeyframe f in keyframeManager.Keyframes)
             {
                 if (di > 0)
                 {
@@ -67,14 +69,17 @@ namespace GarageLights.Show
             }
             if (bestMatch != null)
             {
-                keyframeControl.ActiveKeyframe = bestMatch;
-                Seek?.Invoke(this, new AudioPositionChangedEventArgs(bestMatch.Time));
+                keyframeManager.ActiveKeyframe = bestMatch;
+                if (!audioPlayer.Playing)
+                {
+                    audioPlayer.AudioPosition = bestMatch.Time;
+                }
             }
         }
 
         private void KeyframeControl_ActiveKeyframeChanged(object sender, EventArgs e)
         {
-
+            tsbRemoveKeyframe.Enabled = keyframeManager.ActiveKeyframe != null;
         }
 
         private void tsbRemoveKeyframe_Click(object sender, EventArgs e)
@@ -89,17 +94,20 @@ namespace GarageLights.Show
 
         private void tsbPreviousKeyframe_Click(object sender, EventArgs e)
         {
-            ChangeKeyframe(-1);
+            SeekKeyframe(-1);
         }
 
         private void tsbNextKeyframe_Click(object sender, EventArgs e)
         {
-            ChangeKeyframe(1);
+            SeekKeyframe(1);
         }
 
         private void tsbGoToBeginning_Click(object sender, EventArgs e)
         {
-            Seek?.Invoke(this, new AudioPositionChangedEventArgs(0));
+            if (audioPlayer != null && audioPlayer.IsAudioLoaded)
+            {
+                audioPlayer.AudioPosition = 0;
+            }
         }
 
         private void tsbGoToEnd_Click(object sender, EventArgs e)

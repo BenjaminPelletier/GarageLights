@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GarageLights.Controllers
 {
-    internal interface IController
+    internal interface IController : IDisposable
     {
         /// <summary>
         /// Set the specified addresses (keys) to the specified values (values).

@@ -30,5 +30,10 @@ namespace GarageLights.Controllers
         {
             
         }
+
+        public void Dispose()
+        {
+
+        }
     }
 }

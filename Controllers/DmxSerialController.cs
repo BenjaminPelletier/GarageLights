@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GarageLights.Controllers
 {
-    internal class DmxSerialController : IController, IDisposable
+    internal class DmxSerialController : IController
     {
         static readonly TimeSpan UpdatePeriod = TimeSpan.FromMilliseconds(50);
 
@@ -141,6 +141,10 @@ namespace GarageLights.Controllers
 
         public void Dispose()
         {
+            updateTcs.TrySetCanceled();
+            updateTcs.Task.Wait();
+            if (port.IsOpen) { port.Close(); }
+            port.Dispose();
             updateTcs.TrySetCanceled();
         }
     }

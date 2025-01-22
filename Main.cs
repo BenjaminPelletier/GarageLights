@@ -1,5 +1,6 @@
 ﻿using GarageLights.Audio;
 using GarageLights.Controllers;
+using GarageLights.Lights;
 using GarageLights.Properties;
 using GarageLights.Show;
 using NAudio.CoreAudioApi;
@@ -28,10 +29,19 @@ namespace GarageLights
 
         private GarageLightsSettings settings;
         private ControllerManager controllerManager;
+        private AudioPlayer audioPlayer;
+
+        private ThrottledUiCall<float> updateAudioPosition;
 
         public frmMain()
         {
+            updateAudioPosition = new ThrottledUiCall<float>(this, audioPosition =>
+            {
+                tsslAudioPosition.Text = audioPosition.ToString();
+            });
             InitializeComponent();
+            audioPlayer = new AudioPlayer();
+            multiquence1.AudioPlayer = audioPlayer;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -84,36 +94,43 @@ namespace GarageLights
             Project project = Project.FromFile(filename);
             multiquence1.Project = project;
             settings.ProjectFile = filename;
-            controllerManager = new ControllerManager(project.Controllers);
+            LoadControllerManager(project.Controllers);
             Text = "Garage Lights - " + Path.GetFileName(filename);
         }
 
-        private void multiquence1_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
+        private void LoadControllerManager(List<Controller> controllerDefinitions)
         {
-            tsslAudioPosition.Text = e.AudioPosition.ToString();
-        }
-
-        private void multiquence1_PlaybackContinued(object sender, PlaybackContinuedEventArgs e)
-        {
-            if (controllerManager != null && e.Keyframes != null)
+            if (controllerManager != null)
             {
-                controllerManager.WriteValues(e.AudioPosition, e.Keyframes);
+                controllerManager.Dispose();
             }
+            controllerManager = new ControllerManager(controllerDefinitions);
         }
 
-        private void multiquence1_PlaybackError(object sender, AudioControl.PlaybackErrorEventArgs e)
+        private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
-            MessageBox.Show(this, e.ToString(), "Playback error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (controllerManager != null && multiquence1.KeyframeManager.Keyframes != null)
+            {
+                controllerManager.WriteValues(e.AudioPosition, multiquence1.KeyframeManager.KeyframesByControllerAndAddress);
+            }
+            updateAudioPosition.Trigger(e.AudioPosition);
+        }
+
+        private void audioPlayer_PlaybackError(object sender, PlaybackErrorEventArgs e)
+        {
+            Invoke((Action)(() => {
+                MessageBox.Show(this, e.ToString(), "Playback error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }));
         }
 
         private void tsbPlay_Click(object sender, EventArgs e)
         {
-            multiquence1.Play();
+            audioPlayer.Play();
         }
 
         private void tsbStop_Click(object sender, EventArgs e)
         {
-            multiquence1.Stop();
+            audioPlayer.Stop();
         }
     }
 }

@@ -30,12 +30,13 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ControlPanel));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tsbAddKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbRemoveKeyframe = new System.Windows.Forms.ToolStripButton();
+            this.tsbAddKeyframe = new System.Windows.Forms.ToolStripButton();
+            this.tsbGoToEnd = new System.Windows.Forms.ToolStripButton();
             this.tsbNextKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbPreviousKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbGoToBeginning = new System.Windows.Forms.ToolStripButton();
-            this.tsbGoToEnd = new System.Windows.Forms.ToolStripButton();
+            this.tsbMoveKeyframe = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,12 +50,24 @@
             this.tsbGoToEnd,
             this.tsbNextKeyframe,
             this.tsbPreviousKeyframe,
-            this.tsbGoToBeginning});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 177);
+            this.tsbGoToBeginning,
+            this.tsbMoveKeyframe});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 197);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(231, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(372, 31);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbRemoveKeyframe
+            // 
+            this.tsbRemoveKeyframe.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRemoveKeyframe.Enabled = false;
+            this.tsbRemoveKeyframe.Image = ((System.Drawing.Image)(resources.GetObject("tsbRemoveKeyframe.Image")));
+            this.tsbRemoveKeyframe.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRemoveKeyframe.Name = "tsbRemoveKeyframe";
+            this.tsbRemoveKeyframe.Size = new System.Drawing.Size(28, 28);
+            this.tsbRemoveKeyframe.ToolTipText = "Remove this keyframe";
+            this.tsbRemoveKeyframe.Click += new System.EventHandler(this.tsbRemoveKeyframe_Click);
             // 
             // tsbAddKeyframe
             // 
@@ -66,15 +79,16 @@
             this.tsbAddKeyframe.ToolTipText = "Add keyframe here";
             this.tsbAddKeyframe.Click += new System.EventHandler(this.tsbAddKeyframe_Click);
             // 
-            // tsbRemoveKeyframe
+            // tsbGoToEnd
             // 
-            this.tsbRemoveKeyframe.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRemoveKeyframe.Image = ((System.Drawing.Image)(resources.GetObject("tsbRemoveKeyframe.Image")));
-            this.tsbRemoveKeyframe.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRemoveKeyframe.Name = "tsbRemoveKeyframe";
-            this.tsbRemoveKeyframe.Size = new System.Drawing.Size(28, 28);
-            this.tsbRemoveKeyframe.ToolTipText = "Remove this keyframe";
-            this.tsbRemoveKeyframe.Click += new System.EventHandler(this.tsbRemoveKeyframe_Click);
+            this.tsbGoToEnd.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsbGoToEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbGoToEnd.Image = ((System.Drawing.Image)(resources.GetObject("tsbGoToEnd.Image")));
+            this.tsbGoToEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbGoToEnd.Name = "tsbGoToEnd";
+            this.tsbGoToEnd.Size = new System.Drawing.Size(28, 28);
+            this.tsbGoToEnd.ToolTipText = "Go to end";
+            this.tsbGoToEnd.Click += new System.EventHandler(this.tsbGoToEnd_Click);
             // 
             // tsbNextKeyframe
             // 
@@ -109,16 +123,14 @@
             this.tsbGoToBeginning.ToolTipText = "Go to beginning";
             this.tsbGoToBeginning.Click += new System.EventHandler(this.tsbGoToBeginning_Click);
             // 
-            // tsbGoToEnd
+            // tsbMoveKeyframe
             // 
-            this.tsbGoToEnd.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsbGoToEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbGoToEnd.Image = ((System.Drawing.Image)(resources.GetObject("tsbGoToEnd.Image")));
-            this.tsbGoToEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbGoToEnd.Name = "tsbGoToEnd";
-            this.tsbGoToEnd.Size = new System.Drawing.Size(28, 28);
-            this.tsbGoToEnd.ToolTipText = "Go to end";
-            this.tsbGoToEnd.Click += new System.EventHandler(this.tsbGoToEnd_Click);
+            this.tsbMoveKeyframe.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbMoveKeyframe.Image = ((System.Drawing.Image)(resources.GetObject("tsbMoveKeyframe.Image")));
+            this.tsbMoveKeyframe.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbMoveKeyframe.Name = "tsbMoveKeyframe";
+            this.tsbMoveKeyframe.Size = new System.Drawing.Size(28, 28);
+            this.tsbMoveKeyframe.ToolTipText = "Move keyframe to here";
             // 
             // ControlPanel
             // 
@@ -126,7 +138,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.toolStrip1);
             this.Name = "ControlPanel";
-            this.Size = new System.Drawing.Size(231, 208);
+            this.Size = new System.Drawing.Size(372, 228);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -143,5 +155,6 @@
         private System.Windows.Forms.ToolStripButton tsbNextKeyframe;
         private System.Windows.Forms.ToolStripButton tsbGoToEnd;
         private System.Windows.Forms.ToolStripButton tsbGoToBeginning;
+        private System.Windows.Forms.ToolStripButton tsbMoveKeyframe;
     }
 }
