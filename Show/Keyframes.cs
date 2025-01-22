@@ -21,6 +21,11 @@ namespace GarageLights.Show
     class Keyframe
     {
         public float Time;
+
+        /// <summary>
+        /// Key: Full name of channel
+        /// Value: Value for that channel at this keyframe
+        /// </summary>
         public Dictionary<string, ChannelKeyframe> Channels;
     }
 

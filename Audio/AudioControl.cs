@@ -37,7 +37,15 @@ namespace GarageLights.Audio
         public event EventHandler AudioLoaded;
         public event EventHandler<AudioViewChangedEventArgs> AudioViewChanged;
         public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
+
+        /// <summary>
+        /// Playback continued, with a new audio position.
+        /// This event is invoked on the playback thread rather than the UI thread.
+        /// </summary>
+        public event EventHandler<AudioPositionChangedEventArgs> PlaybackContinued;
+
         public event EventHandler PlaybackStarted;
+        public event EventHandler<PlaybackErrorEventArgs> PlaybackError;
         public event EventHandler PlaybackStopped;
         public event EventHandler FileLoadRequested;
 
@@ -235,26 +243,60 @@ namespace GarageLights.Audio
                 try
                 {
                     IAsyncResult uiResult = null;
+                    bool uiThread = false;
                     while (waveOut.PlaybackState == PlaybackState.Playing)
                     {
                         var newPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
-                        Debug.Print("Playback thread: new position " + newPosition);
+                        //Debug.Print("Playback thread: new position " + newPosition);
                         audioPosition = newPosition;
-                        if (uiResult == null || uiResult.IsCompleted)
+
+                        if (uiThread)
                         {
-                            uiResult = BeginInvoke((Action)(() =>
+                            if (uiResult == null || uiResult.IsCompleted)
                             {
-                                Debug.Print("Playback -> UI thread: AudioPositionChanged");
-                                AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
-                                Refresh();
-                            }));
+                                uiResult = BeginInvoke((Action)(() =>
+                                {
+                                    //Debug.Print("Playback -> UI thread: AudioPositionChanged");
+                                    // TODO: catch errors in AudioPositionChanged handlers
+                                    AudioPositionChanged?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
+                                    Refresh();
+                                }));
+                            }
                         }
+                        else
+                        {
+                            try
+                            {
+                                PlaybackContinued?.Invoke(this, new AudioPositionChangedEventArgs(audioPosition));
+                            }
+                            catch (Exception ex)
+                            {
+                                waveOut.Pause();
+                                audioPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
+                                waveOut.Stop();
+                                if (PlaybackError != null)
+                                {
+                                    Invoke((Action)(() =>
+                                    {
+                                        PlaybackError.Invoke(this, new PlaybackErrorEventArgs(new PlaybackException("An error occurred in a PlaybackContinued event handler", ex)));
+                                    }));
+                                }
+                            }
+                        }
+                        uiThread = !uiThread;
                     }
-                    tcs.SetResult(true);
+                    tcs.TrySetResult(true);
                 }
                 catch (Exception ex)
                 {
                     Debug.Print("Playback thread: exception " + ex);
+                    if (PlaybackError != null)
+                    {
+                        Invoke((Action)(() =>
+                        {
+                            PlaybackError.Invoke(this, new PlaybackErrorEventArgs(new PlaybackException("An error occurred during playback", ex)));
+                        }));
+                    }
                     tcs.SetException(ex);
                 }
                 finally
@@ -278,11 +320,6 @@ namespace GarageLights.Audio
                 audioPosition = timePlaybackStarted + (float)waveOut.GetPosition() / audioFile.WaveFormat.AverageBytesPerSecond;
                 waveOut.Stop();
                 playingTask.Wait();
-                if (playingTask.IsFaulted)
-                {
-                    throw new PlaybackException("An exception occurred during audio playback", playingTask.Exception);
-                }
-                PlaybackStopped?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -400,6 +437,7 @@ namespace GarageLights.Audio
 
         protected override void Dispose(bool disposing)
         {
+            if (Playing) { Stop(); }
             waveOut?.Dispose();
             audioFile?.Dispose();
             base.Dispose(disposing);
@@ -408,6 +446,16 @@ namespace GarageLights.Audio
         public class PlaybackException : Exception
         {
             public PlaybackException(string message, Exception innerException) : base(message, innerException) { }
+        }
+
+        public class PlaybackErrorEventArgs : EventArgs
+        {
+            public readonly PlaybackException Error;
+
+            public PlaybackErrorEventArgs(PlaybackException error)
+            {
+                Error = error;
+            }
         }
     }
 }

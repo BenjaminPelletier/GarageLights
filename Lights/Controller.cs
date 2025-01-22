@@ -9,6 +9,7 @@ namespace GarageLights.Lights
     internal class Controller
     {
         public string Name;
+        public float Latency = 0;
         public SerialDmx SerialDmx;
         public Wemo Wemo;
     }

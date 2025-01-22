@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Controllers;
 using GarageLights.Properties;
 using GarageLights.Show;
 using NAudio.CoreAudioApi;
@@ -27,6 +28,7 @@ namespace GarageLights
 
         private Multiquence multiquence1;
         private GarageLightsSettings settings;
+        private ControllerManager controllerManager;
 
         public frmMain()
         {
@@ -41,6 +43,8 @@ namespace GarageLights
             multiquence1.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             this.Controls.Add(this.multiquence1);
             this.multiquence1.AudioPositionChanged += multiquence1_AudioPositionChanged;
+            this.multiquence1.PlaybackContinued += multiquence1_PlaybackContinued;
+            this.multiquence1.PlaybackError += multiquence1_PlaybackError;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -93,12 +97,26 @@ namespace GarageLights
             Project project = Project.FromFile(filename);
             multiquence1.Project = project;
             settings.ProjectFile = filename;
+            controllerManager = new ControllerManager(project.Controllers);
             Text = "Garage Lights - " + Path.GetFileName(filename);
         }
 
         private void multiquence1_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
             tsslAudioPosition.Text = e.AudioPosition.ToString();
+        }
+
+        private void multiquence1_PlaybackContinued(object sender, PlaybackContinuedEventArgs e)
+        {
+            if (controllerManager != null && e.Keyframes != null)
+            {
+                controllerManager.WriteValues(e.AudioPosition, e.Keyframes);
+            }
+        }
+
+        private void multiquence1_PlaybackError(object sender, AudioControl.PlaybackErrorEventArgs e)
+        {
+            MessageBox.Show(this, e.ToString(), "Playback error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void tsbPlay_Click(object sender, EventArgs e)

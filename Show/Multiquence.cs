@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Lights;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,13 @@ namespace GarageLights.Show
 
         public event EventHandler<AudioFileEventArgs> AudioFileChanged;
         public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
+        public event EventHandler<AudioControl.PlaybackErrorEventArgs> PlaybackError;
+
+        /// <summary>
+        /// Playback continued, with a new audio position.
+        /// This event is invoked on the playback thread rather than the UI thread.
+        /// </summary>
+        public event EventHandler<PlaybackContinuedEventArgs> PlaybackContinued;
 
         public Multiquence()
         {
@@ -135,6 +143,40 @@ namespace GarageLights.Show
         private void showScroller1_AudioViewChange(object sender, AudioViewChangedEventArgs e)
         {
             audioControl1.UpdateAudioView(e.LeftTime, e.RightTime);
+        }
+
+        private void audioControl1_PlaybackContinued(object sender, AudioPositionChangedEventArgs e)
+        {
+            if (PlaybackContinued != null)
+            {
+                var keyframes = keyframeControl1.KeyframesByControllerAndAddress;
+                PlaybackContinued.Invoke(this, new PlaybackContinuedEventArgs(e.AudioPosition, keyframes));
+            }
+        }
+
+        private void audioControl1_PlaybackError(object sender, AudioControl.PlaybackErrorEventArgs e)
+        {
+            PlaybackError?.Invoke(this, e);
+        }
+    }
+
+    internal class PlaybackContinuedEventArgs : EventArgs
+    {
+        public float AudioPosition { get; }
+
+        /// <summary>
+        /// Per-controller, per-address keyframe information.
+        /// Key: Controller name
+        /// Value:
+        ///     Key: Address
+        ///     Value: Value keyframes for that address
+        /// </summary>
+        public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> Keyframes { get; }
+
+        public PlaybackContinuedEventArgs(float audioPosition, Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframes)
+        {
+            AudioPosition = audioPosition;
+            Keyframes = keyframes;
         }
     }
 }

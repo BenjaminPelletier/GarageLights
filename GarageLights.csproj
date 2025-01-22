@@ -69,8 +69,11 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Audio\EventArgs.cs" />
+    <Compile Include="Controllers\ControllerManager.cs" />
     <Compile Include="Controllers\DmxSerialController.cs" />
+    <Compile Include="Controllers\DummyController.cs" />
     <Compile Include="Controllers\IController.cs" />
+    <Compile Include="Controllers\WemoController.cs" />
     <Compile Include="Lights\ChannelNode.cs" />
     <Compile Include="Lights\Controller.cs" />
     <Compile Include="Lights\Channel.cs" />

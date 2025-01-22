@@ -80,11 +80,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.keyframeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.keyframeControl1.CurrentTime = 0F;
+            this.keyframeControl1.Keyframes = null;
             this.keyframeControl1.Location = new System.Drawing.Point(6, 212);
             this.keyframeControl1.MaxTime = 0F;
             this.keyframeControl1.Name = "keyframeControl1";
             this.keyframeControl1.RowSource = null;
-            this.keyframeControl1.Size = new System.Drawing.Size(574, 210);
+            this.keyframeControl1.Size = new System.Drawing.Size(570, 210);
             this.keyframeControl1.TabIndex = 2;
             // 
             // showScroller1
@@ -113,6 +114,8 @@
             this.audioControl1.AudioLoaded += new System.EventHandler(this.audioControl1_AudioLoaded);
             this.audioControl1.AudioViewChanged += new System.EventHandler<GarageLights.Audio.AudioViewChangedEventArgs>(this.audioControl1_AudioViewChanged);
             this.audioControl1.AudioPositionChanged += new System.EventHandler<GarageLights.Audio.AudioPositionChangedEventArgs>(this.audioControl1_AudioPositionChanged);
+            this.audioControl1.PlaybackContinued += new System.EventHandler<GarageLights.Audio.AudioPositionChangedEventArgs>(this.audioControl1_PlaybackContinued);
+            this.audioControl1.PlaybackError += new System.EventHandler<GarageLights.Audio.AudioControl.PlaybackErrorEventArgs>(this.audioControl1_PlaybackError);
             this.audioControl1.FileLoadRequested += new System.EventHandler(this.audioControl1_FileLoadRequested);
             // 
             // ofdAudioFile

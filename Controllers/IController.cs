@@ -8,6 +8,18 @@ namespace GarageLights.Controllers
 {
     internal interface IController
     {
-        void SetChannel(int address, int value);
+        /// <summary>
+        /// Set the specified addresses (keys) to the specified values (values).
+        /// </summary>
+        /// <param name="addressValues">Keys: Addresses, Values: Values</param>
+        void SetChannels(Dictionary<int, int> addressValues);
+
+        void ClearChannels(IEnumerable<int> addresses);
+
+        /// <summary>
+        /// Get the latency for this controller.
+        /// </summary>
+        /// <returns>Number of seconds between commanding addresses to values and those values being observed on the device.</returns>
+        float GetLatency();
     }
 }

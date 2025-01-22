@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using GarageLights.Lights;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,6 +19,7 @@ namespace GarageLights.Show
 
         ChannelTreeView rowSource;
         List<Keyframe> keyframes;
+        Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
         float maxTime;
         float currentTime;
         float leftTime;
@@ -67,11 +69,98 @@ namespace GarageLights.Show
 
         public List<Keyframe> Keyframes
         {
+            get { return keyframes; }
             set
             {
+                keyframesByControllerAndAddress = null;
                 keyframes = value;
             }
         }
+
+        #region Keyframe organization
+
+        public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> KeyframesByControllerAndAddress
+        {
+            get
+            {
+                if (keyframesByControllerAndAddress == null && keyframes != null && rowSource != null)
+                {
+                    var topNodes = new List<ChannelNode>();
+                    foreach (TreeNode node in rowSource.Nodes)
+                    {
+                        topNodes.Add((node as ChannelNodeTreeNode).ChannelNode);
+                    }
+                    keyframesByControllerAndAddress = OrganizeKeyframesByControllerAndAddress(keyframes, topNodes);
+                }
+                return keyframesByControllerAndAddress;
+            }
+        }
+
+        private static Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> OrganizeKeyframesByControllerAndAddress(List<Keyframe> keyframes, IEnumerable<ChannelNode> channelNodes)
+        {
+            Dictionary<string, Channel> channelsByFullName = MapChannelNodes(channelNodes);
+
+            var addressKeyframesByController = new Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>>();
+            foreach (Keyframe f in keyframes)
+            {
+                foreach (var fullChannelNameAndKeyframe in f.Channels)
+                {
+                    string fullName = fullChannelNameAndKeyframe.Key;
+                    var channelKeyframe = fullChannelNameAndKeyframe.Value;
+
+                    Channel channel = channelsByFullName[fullName];
+
+                    // Select output by controller
+                    Dictionary<int, List<TimedChannelKeyframe>> keyframesByAddress;
+                    if (!addressKeyframesByController.TryGetValue(channel.Controller, out keyframesByAddress))
+                    {
+                        keyframesByAddress = new Dictionary<int, List<TimedChannelKeyframe>>();
+                        addressKeyframesByController[channel.Controller] = keyframesByAddress;
+                    }
+
+                    // Select output by address
+                    List<TimedChannelKeyframe> channelKeyframes;
+                    if (!keyframesByAddress.TryGetValue(channel.Address, out channelKeyframes))
+                    {
+                        channelKeyframes = new List<TimedChannelKeyframe>();
+                        keyframesByAddress[channel.Address] = channelKeyframes;
+                    }
+
+                    // Add a new channel keyframe
+                    channelKeyframes.Add(new TimedChannelKeyframe(f.Time, channelKeyframe));
+                }
+            }
+            return addressKeyframesByController;
+        }
+
+        private static Dictionary<string, Channel> MapChannelNodes(IEnumerable<ChannelNode> channelNodes)
+        {
+            var channelsByFullName = new Dictionary<string, Channel>();
+            foreach (ChannelNode node in channelNodes)
+            {
+                if (node.Group != null)
+                {
+                    foreach (var channelByName in MapChannelNodes(node.Group.Nodes))
+                    {
+                        Channel mappedChannel = channelByName.Value
+                            .OffsetAddress(node.Group.Address)
+                            .WithParentController(node.Group.Controller);
+                        channelsByFullName[node.Name + "." + channelByName.Key] = mappedChannel;
+                    }
+                }
+                else if (node.Channel != null)
+                {
+                    channelsByFullName[node.Name] = node.Channel;
+                }
+                else
+                {
+                    throw new NotImplementedException("ChannelNode '" + node.Name + "' was not a Group node nor Channel node");
+                }
+            }
+            return channelsByFullName;
+        }
+
+        #endregion
 
         private void KeyframeControl_Paint(object sender, PaintEventArgs e)
         {
