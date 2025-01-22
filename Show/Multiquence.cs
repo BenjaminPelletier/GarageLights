@@ -34,6 +34,7 @@ namespace GarageLights.Show
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
             keyframeControl1.RowSource = tvChannels;
+            controlPanel1.KeyframeControl = keyframeControl1;
         }
 
         public Project Project
@@ -44,21 +45,24 @@ namespace GarageLights.Show
                 project = value;
 
                 tvChannels.Nodes.Clear();
-                tvChannels.Nodes.AddRange(
-                    project.ChannelNodes
-                        .Select(n => ChannelNodeTreeNode.FromChannelNode(n))
-                        .ToArray()
-                );
-
-                if (project.Keyframes == null)
+                if (project != null)
                 {
-                    project.Keyframes = new List<Keyframe>();
-                }
-                keyframeControl1.Keyframes = project.Keyframes;
+                    tvChannels.Nodes.AddRange(
+                        project.ChannelNodes
+                            .Select(n => ChannelNodeTreeNode.FromChannelNode(n))
+                            .ToArray()
+                    );
 
-                if (project.AudioFile != null)
-                {
-                    audioControl1.LoadAudio(project.AudioFile);
+                    if (project.Keyframes == null)
+                    {
+                        project.Keyframes = new List<Keyframe>();
+                    }
+                    keyframeControl1.Keyframes = project.Keyframes;
+
+                    if (project.AudioFile != null)
+                    {
+                        audioControl1.LoadAudio(project.AudioFile);
+                    }
                 }
             }
         }
@@ -87,6 +91,7 @@ namespace GarageLights.Show
         {
             tvChannels.Width = splitContainer1.Panel1.Width - 2 * tvChannels.Left;
             tvChannels.Height = splitContainer1.Panel1.Height - tvChannels.Top - tvChannels.Left;
+            controlPanel1.Width = tvChannels.Width;
         }
 
         private void splitContainer1_Panel2_Resize(object sender, EventArgs e)
@@ -120,6 +125,7 @@ namespace GarageLights.Show
 
         private void audioControl1_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
+            controlPanel1.CurrentTime = e.AudioPosition;
             keyframeControl1.CurrentTime = e.AudioPosition;
             showScroller1.CurrentTime = e.AudioPosition;
             AudioPositionChanged?.Invoke(this, e);
@@ -157,6 +163,11 @@ namespace GarageLights.Show
         private void audioControl1_PlaybackError(object sender, AudioControl.PlaybackErrorEventArgs e)
         {
             PlaybackError?.Invoke(this, e);
+        }
+
+        private void controlPanel1_Seek(object sender, AudioPositionChangedEventArgs e)
+        {
+            audioControl1.AudioPosition = e.AudioPosition;
         }
     }
 

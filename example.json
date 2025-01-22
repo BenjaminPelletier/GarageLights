@@ -35,6 +35,19 @@
 					{"Name": "White",		"Channel": {"Address": 10}},
 					{"Name": "Demo",		"Channel": {"Address": 11}},
 				]
+			},
+		},
+		{"Name": "Par 1",
+			"Group": {
+				"Controller": "DMX Serial",
+				"Address": 17,
+				"Nodes": [
+					{"Name": "Dimmer",		"Channel": {"Address": 0}},
+					{"Name": "Red",			"Channel": {"Address": 1}},
+					{"Name": "Green",		"Channel": {"Address": 2}},
+					{"Name": "Blue",		"Channel": {"Address": 3}},
+					{"Name": "Strobe",		"Channel": {"Address": 4}},
+				]
 			}
 		}
 	],
@@ -59,11 +72,14 @@
 				"Mini beam 1.Green": { "Value": 128, "Style": "Step" },
 			}
 		},
-				{
+		{
 			"Time": 9.066,
 			"Channels": {
 				"Mini beam 1.Green": { "Value": 255 },
 			}
 		},
+		{
+			"Time": 10.035,
+		}
 	]
 }

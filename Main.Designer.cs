@@ -44,6 +44,7 @@ namespace GarageLights
             this.tsbStop = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsslAudioPosition = new System.Windows.Forms.ToolStripStatusLabel();
+            this.multiquence1 = new GarageLights.Show.Multiquence();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -77,20 +78,20 @@ namespace GarageLights
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(155, 30);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(155, 30);
             this.saveToolStripMenuItem.Text = "&Save";
             // 
             // saveasToolStripMenuItem
             // 
             this.saveasToolStripMenuItem.Name = "saveasToolStripMenuItem";
-            this.saveasToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.saveasToolStripMenuItem.Size = new System.Drawing.Size(155, 30);
             this.saveasToolStripMenuItem.Text = "Save &as";
             // 
             // ofdProject
@@ -118,7 +119,7 @@ namespace GarageLights
             this.tsbPlay.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbPlay.Name = "tsbPlay";
             this.tsbPlay.Size = new System.Drawing.Size(28, 28);
-            this.tsbPlay.Text = "toolStripButton1";
+            this.tsbPlay.Text = "Begin playback from here";
             this.tsbPlay.Click += new System.EventHandler(this.tsbPlay_Click);
             // 
             // tsbStop
@@ -129,7 +130,7 @@ namespace GarageLights
             this.tsbStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbStop.Name = "tsbStop";
             this.tsbStop.Size = new System.Drawing.Size(28, 28);
-            this.tsbStop.Text = "toolStripButton1";
+            this.tsbStop.Text = "Stop playback";
             this.tsbStop.Click += new System.EventHandler(this.tsbStop_Click);
             // 
             // statusStrip1
@@ -149,11 +150,25 @@ namespace GarageLights
             this.tsslAudioPosition.Size = new System.Drawing.Size(22, 25);
             this.tsslAudioPosition.Text = "0";
             // 
+            // multiquence1
+            // 
+            this.multiquence1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.multiquence1.Location = new System.Drawing.Point(0, 64);
+            this.multiquence1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.multiquence1.Name = "multiquence1";
+            this.multiquence1.Project = null;
+            this.multiquence1.Size = new System.Drawing.Size(1420, 578);
+            this.multiquence1.TabIndex = 4;
+            this.multiquence1.AudioPositionChanged += new System.EventHandler<GarageLights.Audio.AudioPositionChangedEventArgs>(this.multiquence1_AudioPositionChanged);
+            this.multiquence1.PlaybackError += new System.EventHandler<GarageLights.Audio.AudioControl.PlaybackErrorEventArgs>(this.multiquence1_PlaybackError);
+            this.multiquence1.PlaybackContinued += new System.EventHandler<GarageLights.Show.PlaybackContinuedEventArgs>(this.multiquence1_PlaybackContinued);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1420, 672);
+            this.Controls.Add(this.multiquence1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
@@ -186,6 +201,7 @@ namespace GarageLights
         private System.Windows.Forms.ToolStripButton tsbStop;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsslAudioPosition;
+        private Multiquence multiquence1;
     }
 }
 

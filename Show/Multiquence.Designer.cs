@@ -29,11 +29,12 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
+            this.controlPanel1 = new GarageLights.Show.ControlPanel();
             this.tvChannels = new GarageLights.Show.ChannelTreeView();
             this.keyframeControl1 = new GarageLights.Show.KeyframeControl();
             this.showScroller1 = new GarageLights.Show.ShowScroller();
             this.audioControl1 = new GarageLights.Audio.AudioControl();
-            this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -49,6 +50,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.controlPanel1);
             this.splitContainer1.Panel1.Controls.Add(this.tvChannels);
             this.splitContainer1.Panel1.Resize += new System.EventHandler(this.splitContainer1_Panel1_Resize);
             // 
@@ -63,6 +65,19 @@
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
             // 
+            // ofdAudioFile
+            // 
+            this.ofdAudioFile.FileName = "song.mp3";
+            this.ofdAudioFile.Filter = "MP3 file|*.mp3|WAV file|*.wav";
+            // 
+            // controlPanel1
+            // 
+            this.controlPanel1.Location = new System.Drawing.Point(4, 5);
+            this.controlPanel1.Name = "controlPanel1";
+            this.controlPanel1.Size = new System.Drawing.Size(214, 198);
+            this.controlPanel1.TabIndex = 4;
+            this.controlPanel1.Seek += new System.EventHandler<GarageLights.Audio.AudioPositionChangedEventArgs>(this.controlPanel1_Seek);
+            // 
             // tvChannels
             // 
             this.tvChannels.CheckBoxes = true;
@@ -76,6 +91,7 @@
             // 
             // keyframeControl1
             // 
+            this.keyframeControl1.ActiveKeyframe = null;
             this.keyframeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.keyframeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -85,7 +101,7 @@
             this.keyframeControl1.MaxTime = 0F;
             this.keyframeControl1.Name = "keyframeControl1";
             this.keyframeControl1.RowSource = null;
-            this.keyframeControl1.Size = new System.Drawing.Size(570, 210);
+            this.keyframeControl1.Size = new System.Drawing.Size(566, 210);
             this.keyframeControl1.TabIndex = 2;
             // 
             // showScroller1
@@ -118,11 +134,6 @@
             this.audioControl1.PlaybackError += new System.EventHandler<GarageLights.Audio.AudioControl.PlaybackErrorEventArgs>(this.audioControl1_PlaybackError);
             this.audioControl1.FileLoadRequested += new System.EventHandler(this.audioControl1_FileLoadRequested);
             // 
-            // ofdAudioFile
-            // 
-            this.ofdAudioFile.FileName = "song.mp3";
-            this.ofdAudioFile.Filter = "MP3 file|*.mp3|WAV file|*.wav";
-            // 
             // Multiquence
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -147,5 +158,6 @@
         private KeyframeControl keyframeControl1;
         private ChannelTreeView tvChannels;
         private System.Windows.Forms.OpenFileDialog ofdAudioFile;
+        private ControlPanel controlPanel1;
     }
 }

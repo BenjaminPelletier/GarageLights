@@ -20,10 +20,13 @@ namespace GarageLights.Show
         ChannelTreeView rowSource;
         List<Keyframe> keyframes;
         Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
+        Keyframe activeKeyframe;
         float maxTime;
         float currentTime;
         float leftTime;
         float rightTime;
+
+        public event EventHandler ActiveKeyframeChanged;
 
         public KeyframeControl() : base()
         {
@@ -77,6 +80,21 @@ namespace GarageLights.Show
             }
         }
 
+        public Keyframe ActiveKeyframe
+        {
+            get { return activeKeyframe; }
+            set
+            {
+                if (value != activeKeyframe)
+                {
+                    activeKeyframe = value;
+                    // TODO: Seek to new keyframe unless audio is playing
+                    ActiveKeyframeChanged?.Invoke(this, EventArgs.Empty);
+                    Invalidate();
+                }
+            }
+        }
+
         #region Keyframe organization
 
         public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> KeyframesByControllerAndAddress
@@ -103,6 +121,7 @@ namespace GarageLights.Show
             var addressKeyframesByController = new Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>>();
             foreach (Keyframe f in keyframes)
             {
+                if (f.Channels == null) { continue; }
                 foreach (var fullChannelNameAndKeyframe in f.Channels)
                 {
                     string fullName = fullChannelNameAndKeyframe.Key;
@@ -177,6 +196,11 @@ namespace GarageLights.Show
                 float x = (currentTime - leftTime) / (rightTime - leftTime) * ClientSize.Width;
                 e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
             }
+
+            if (activeKeyframe != null)
+            {
+
+            }
         }
 
         private void DrawKeyframes(Graphics g)
@@ -228,7 +252,6 @@ namespace GarageLights.Show
                     float y1 = yb - (bounds.Height - 2 * RowMargin) * (kf1.Keyframe.Value / 255.0f);
                     if (kf1.Keyframe.Style == KeyframeStyle.Linear)
                     {
-                        // g.DrawLine(Pens.DarkGray, x0, y0, x1, y1);
                         g.FillPolygon(Brushes.LightSkyBlue, new PointF[]
                         {
                             new PointF(x0, yb),
@@ -239,7 +262,6 @@ namespace GarageLights.Show
                     }
                     else if (kf1.Keyframe.Style == KeyframeStyle.Step)
                     {
-                        // g.DrawLine(Pens.DarkGray, x0, y0, x1, y0);
                         g.DrawLine(Pens.LightSkyBlue, x1, y0, x1, y1);
                         g.FillRectangle(Brushes.LightSkyBlue, x0, y0, x1 - x0, yb - y0);
                     }
@@ -266,7 +288,7 @@ namespace GarageLights.Show
                 {
                     if (f.Time < leftTime || f.Time > rightTime) { continue; }
                     float x = ClientSize.Width * (f.Time - leftTime) / (rightTime - leftTime);
-                    g.DrawLine(Pens.DarkGreen, x, 0, x, ClientSize.Height);
+                    g.DrawLine(activeKeyframe == f ? Pens.Orange : Pens.DarkGreen, x, 0, x, ClientSize.Height);
                 }
 
                 // Draw keyframe markers/icons
@@ -285,8 +307,16 @@ namespace GarageLights.Show
                         path.AddLine(x + KeyframeSize / 2, y, x, y + KeyframeSize / 2);
                         path.AddLine(x, y + KeyframeSize / 2, x - KeyframeSize / 2, y);
                         path.AddLine(x - KeyframeSize / 2, y, x, y - KeyframeSize / 2);
-                        g.FillPath(Brushes.LightGreen, path);
-                        g.DrawPath(Pens.DarkGreen, path);
+                        if (activeKeyframe != null && kf.Time == activeKeyframe.Time)
+                        {
+                            g.FillPath(Brushes.LightGoldenrodYellow, path);
+                            g.DrawPath(Pens.DarkOrange, path);
+                        }
+                        else
+                        {
+                            g.FillPath(Brushes.LightGreen, path);
+                            g.DrawPath(Pens.DarkGreen, path);
+                        }
                     }
                 }
             }

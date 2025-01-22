@@ -90,6 +90,12 @@
     <Compile Include="Show\ChannelTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Show\ControlPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Show\ControlPanel.Designer.cs">
+      <DependentUpon>ControlPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Show\Keyframes.cs" />
     <Compile Include="Show\KeyframeControl.cs">
       <SubType>UserControl</SubType>
@@ -109,6 +115,9 @@
     <Compile Include="Audio\ViewableWaveform.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Show\ControlPanel.resx">
+      <DependentUpon>ControlPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Show\Multiquence.resx">
       <DependentUpon>Multiquence.cs</DependentUpon>
