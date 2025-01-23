@@ -114,6 +114,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Audio\ViewableWaveform.cs" />
+    <Compile Include="ThrottledPainter.cs" />
     <Compile Include="ThrottledUiCall.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -35,12 +36,11 @@ namespace GarageLights
 
         public frmMain()
         {
-            updateAudioPosition = new ThrottledUiCall<float>(this, audioPosition =>
-            {
-                tsslAudioPosition.Text = audioPosition.ToString();
-            });
+            updateAudioPosition = new ThrottledUiCall<float>(this, OnAudioPositionChange);
             InitializeComponent();
             audioPlayer = new AudioPlayer();
+            audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
+            audioPlayer.PlaybackError += audioPlayer_PlaybackError;
             multiquence1.AudioPlayer = audioPlayer;
         }
 
@@ -114,6 +114,11 @@ namespace GarageLights
                 controllerManager.WriteValues(e.AudioPosition, multiquence1.KeyframeManager.KeyframesByControllerAndAddress);
             }
             updateAudioPosition.Trigger(e.AudioPosition);
+        }
+
+        private void OnAudioPositionChange(float audioPosition)
+        {
+            tsslAudioPosition.Text = audioPosition.ToString();
         }
 
         private void audioPlayer_PlaybackError(object sender, PlaybackErrorEventArgs e)

@@ -4,6 +4,7 @@ using GarageLights.Show;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace GarageLights.Keyframes
         AudioPlayer audioPlayer;
         ChannelTreeView rowSource;
 
-        private ThrottledUiCall refresh;
+        private ThrottledPainter bgPainter;
 
         List<ShowKeyframe> keyframes;
         Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
@@ -33,11 +34,11 @@ namespace GarageLights.Keyframes
 
         public event EventHandler ActiveKeyframeChanged;
 
-        public KeyframeControl() : base()
+        public KeyframeControl()
         {
-            refresh = new ThrottledUiCall(this, Refresh);
             DoubleBuffered = true;
-            Paint += KeyframeControl_Paint;
+            bgPainter = new ThrottledPainter(this, KeyframeControl_Paint);
+            Paint += bgPainter.Paint;
         }
 
         public AudioPlayer AudioPlayer
@@ -68,7 +69,7 @@ namespace GarageLights.Keyframes
 
         private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
-            refresh.Trigger();
+            bgPainter.RequestPaint(!audioPlayer.Playing);
         }
 
         #region IKeyframeManager

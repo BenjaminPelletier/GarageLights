@@ -21,7 +21,7 @@ namespace GarageLights.Audio
         private float leftTime;
         private float rightTime;
 
-        private ThrottledUiCall refresh;
+        private ThrottledPainter bgPainter;
         private bool isDragging;
         private Point dragStartPoint;
         private float dragStartLeftTime;
@@ -31,16 +31,16 @@ namespace GarageLights.Audio
 
         public AudioControl()
         {
-            refresh = new ThrottledUiCall(this, Refresh);
             bool designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             DoubleBuffered = true;
+            bgPainter = new ThrottledPainter(this, AudioControl_Paint);
             if (!designMode)
             {
                 MouseWheel += AudioControl_MouseWheel;
                 MouseDown += AudioControl_MouseDown;
                 MouseUp += AudioControl_MouseUp;
                 MouseMove += AudioControl_MouseMove;
-                Paint += AudioControl_Paint;
+                Paint += bgPainter.Paint;
                 MouseDoubleClick += AudioControl_MouseDoubleClick;
                 Resize += AudioControl_Resize;
             }
@@ -142,19 +142,19 @@ namespace GarageLights.Audio
 
         private void audioPlayer_LoadingAudio(object sender, EventArgs e)
         {
-            BeginInvoke((Action)Invalidate);
+            Invalidate();
         }
 
         private void audioPlayer_AudioLoaded(object sender, AudioLoadedEventArgs e)
         {
             viewableWaveform = new ViewableWaveform(e.AudioFile);
             UpdateAudioView(0, audioPlayer.AudioLength);
-            BeginInvoke((Action)Invalidate);
+            Invalidate();
         }
 
         private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
-            refresh.Trigger();
+            bgPainter.RequestPaint(!audioPlayer.Playing);
         }
 
         private void AudioControl_Paint(object sender, PaintEventArgs e)

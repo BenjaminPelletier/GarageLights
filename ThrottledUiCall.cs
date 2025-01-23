@@ -7,47 +7,33 @@ using System.Windows.Forms;
 
 namespace GarageLights
 {
-    class ThrottledUiCall
-    {
-        private Control ui;
-        private Action action;
-        private IAsyncResult result;
-
-        public ThrottledUiCall(Control ui, Action action)
-        {
-            this.ui = ui;
-            this.action = action;
-        }
-
-        public void Trigger()
-        {
-            if (result == null || result.IsCompleted)
-            {
-                result = ui.BeginInvoke(action);
-                // TODO: catch and report errors
-            }
-        }
-    }
-
     class ThrottledUiCall<ArgType>
     {
+        private DateTime runAfter;
         private Control ui;
         private Action<ArgType> action;
-        private IAsyncResult result;
 
         public ThrottledUiCall(Control ui, Action<ArgType> action)
         {
             this.ui = ui;
             this.action = action;
+            runAfter = DateTime.UtcNow;
         }
 
         public void Trigger(ArgType arg)
         {
-            if (result == null || result.IsCompleted)
+            if (DateTime.UtcNow > runAfter)
             {
-                result = ui.BeginInvoke(action, arg);
-                // TODO: catch and report errors
+                runAfter = DateTime.UtcNow.AddSeconds(1);
+                ui.BeginInvoke((Action<ArgType>)RunAction, arg);
             }
+        }
+
+        private void RunAction(ArgType arg)
+        {
+            // TODO: catch and report errors
+            action(arg);
+            runAfter = DateTime.UtcNow.AddMilliseconds(20);
         }
     }
 }

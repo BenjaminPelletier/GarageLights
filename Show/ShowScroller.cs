@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using GarageLights.Audio;
+using System.Diagnostics;
 
 namespace GarageLights.Show
 {
@@ -17,7 +18,7 @@ namespace GarageLights.Show
         float leftTime;
         float rightTime;
 
-        private ThrottledUiCall refresh;
+        private ThrottledPainter bgPainter;
         float tDragOrigin;
         bool isDragging;
 
@@ -25,9 +26,9 @@ namespace GarageLights.Show
 
         public ShowScroller()
         {
-            refresh = new ThrottledUiCall(this, Refresh);
             DoubleBuffered = true;
-            Paint += ShowScroller_Paint;
+            bgPainter = new ThrottledPainter(this, ShowScroller_Paint);
+            Paint += bgPainter.Paint;
             MouseDown += ShowScroller_MouseDown;
             MouseMove += ShowScroller_MouseMove;
             MouseUp += ShowScroller_MouseUp;
@@ -51,7 +52,7 @@ namespace GarageLights.Show
 
         private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
-            refresh.Trigger();
+            bgPainter.RequestPaint(!audioPlayer.Playing);
         }
 
         private void ShowScroller_Paint(object sender, PaintEventArgs e)
