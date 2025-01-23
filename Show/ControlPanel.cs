@@ -80,16 +80,52 @@ namespace GarageLights.Show
         private void KeyframeControl_ActiveKeyframeChanged(object sender, EventArgs e)
         {
             tsbRemoveKeyframe.Enabled = keyframeManager.ActiveKeyframe != null;
+            tsbMoveKeyframe.Enabled = keyframeManager.ActiveKeyframe != null;
         }
 
         private void tsbRemoveKeyframe_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (keyframeManager.ActiveKeyframe != null)
+            {
+                var keyframe = keyframeManager.ActiveKeyframe;
+                keyframeManager.ActiveKeyframe = null;
+                keyframeManager.Keyframes.Remove(keyframe);
+                keyframeManager.NotifyKeyframesChanged();
+            }
         }
 
         private void tsbAddKeyframe_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded || keyframeManager == null) { return; }
+            if (keyframeManager.Keyframes == null)
+            {
+                keyframeManager.Keyframes = new List<ShowKeyframe>();
+            }
+            float t = audioPlayer.AudioPosition;
+
+            int i = 0;
+            for (; i < keyframeManager.Keyframes.Count; i++)
+            {
+                if (t <= keyframeManager.Keyframes[i].Time) { break; }
+            }
+
+            if (i < keyframeManager.Keyframes.Count && t == keyframeManager.Keyframes[i].Time)
+            {
+                // Select an existing keyframe whose time matches exactly instead
+                keyframeManager.ActiveKeyframe = keyframeManager.Keyframes[i];
+                return;
+            }
+
+            var keyframe = new ShowKeyframe() { Time = t };
+            if (i >= keyframeManager.Keyframes.Count)
+            {
+                keyframeManager.Keyframes.Add(keyframe);
+            }
+            else
+            {
+                keyframeManager.Keyframes.Insert(i, keyframe);
+            }
+            keyframeManager.NotifyKeyframesChanged();
         }
 
         private void tsbPreviousKeyframe_Click(object sender, EventArgs e)
@@ -113,6 +149,15 @@ namespace GarageLights.Show
         private void tsbGoToEnd_Click(object sender, EventArgs e)
         {
             throw new NotImplementedException();
+        }
+
+        private void tsbMoveKeyframe_Click(object sender, EventArgs e)
+        {
+            if (keyframeManager.ActiveKeyframe != null && audioPlayer != null)
+            {
+                keyframeManager.ActiveKeyframe.Time = audioPlayer.AudioPosition;
+                keyframeManager.NotifyKeyframesChanged();
+            }
         }
     }
 }

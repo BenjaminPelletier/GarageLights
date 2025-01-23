@@ -1,0 +1,3 @@
+Interpolation prior to first keyframe
+	* Add new keyframe before first one in example
+	* Display interpolates from 0, but device snaps from 0 at keyframe

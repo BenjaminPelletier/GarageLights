@@ -14,8 +14,7 @@ namespace GarageLights.Keyframes
         ShowKeyframe activeKeyframe;
 
         public event EventHandler ActiveKeyframeChanged;
-
-        #region IKeyframeManager
+        public event EventHandler KeyframesChanged;
 
         public List<ShowKeyframe> Keyframes
         {
@@ -115,7 +114,10 @@ namespace GarageLights.Keyframes
             return channelsByFullName;
         }
 
-        #endregion
-
+        public void NotifyKeyframesChanged()
+        {
+            keyframesByControllerAndAddress = null;
+            KeyframesChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

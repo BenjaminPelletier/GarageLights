@@ -131,6 +131,7 @@
             this.tsbMoveKeyframe.Name = "tsbMoveKeyframe";
             this.tsbMoveKeyframe.Size = new System.Drawing.Size(28, 28);
             this.tsbMoveKeyframe.ToolTipText = "Move keyframe to here";
+            this.tsbMoveKeyframe.Click += new System.EventHandler(this.tsbMoveKeyframe_Click);
             // 
             // ControlPanel
             // 

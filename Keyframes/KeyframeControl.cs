@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Dialogs;
 using GarageLights.Lights;
 using GarageLights.Show;
 using NAudio.Wave;
@@ -34,8 +35,10 @@ namespace GarageLights.Keyframes
             DoubleBuffered = true;
             keyframeManager = new KeyframeManager();
             keyframeManager.ActiveKeyframeChanged += keyframeManager_ActiveKeyframeChanged;
+            keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
             bgPainter = new ThrottledPainter(this, KeyframeControl_Paint);
             Paint += bgPainter.Paint;
+            MouseDoubleClick += KeyframeControl_MouseDoubleClick;
         }
 
         public AudioPlayer AudioPlayer
@@ -76,12 +79,74 @@ namespace GarageLights.Keyframes
             Invalidate();
         }
 
+        private void keyframeManager_KeyframesChanged(object sender, EventArgs e)
+        {
+            Invalidate();
+        }
+
+        private ShowKeyframe ClosestKeyframe(float x)
+        {
+            float t = leftTime + (rightTime - leftTime) * x / ClientSize.Width;
+
+            ShowKeyframe closestKeyframe = null;
+            float dt = float.PositiveInfinity;
+            foreach (ShowKeyframe keyframe in keyframeManager.Keyframes)
+            {
+                if (keyframe.Time < leftTime || keyframe.Time > rightTime) { continue; }
+                float kdt = Math.Abs(t - keyframe.Time);
+                if (kdt < dt)
+                {
+                    closestKeyframe = keyframe;
+                    dt = kdt;
+                }
+            }
+            return closestKeyframe;
+        }
+
+        private void KeyframeControl_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded ||
+                keyframeManager == null || keyframeManager.Keyframes == null ||
+                leftTime == rightTime) { return; }
+
+            ShowKeyframe closestKeyframe = ClosestKeyframe(e.X);
+            if (closestKeyframe == null) { return; }
+
+            ChannelNodeTreeNode closestChannelNode = rowSource.ClosestChannelNodeTreeNode(e.Y);
+            if (closestChannelNode == null) { return; }
+
+            bool newKeyframe = false;
+            if (closestKeyframe.Channels == null || !closestKeyframe.Channels.ContainsKey(closestChannelNode.FullName))
+            {
+                var channelKeyframe = new ChannelKeyframe() { Value = 0 };
+                if (closestKeyframe.Channels == null)
+                {
+                    closestKeyframe.Channels = new Dictionary<string, ChannelKeyframe>();
+                }
+                closestKeyframe.Channels[closestChannelNode.FullName] = channelKeyframe;
+                newKeyframe = true;
+            }
+            var valueDialog = new ChannelValueDialog();
+            valueDialog.ChannelName = closestChannelNode.FullName;
+            valueDialog.ChannelKeyframe = closestKeyframe.Channels[closestChannelNode.FullName];
+            if (valueDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                closestKeyframe.Channels[closestChannelNode.FullName] = valueDialog.ChannelKeyframe;
+            }
+            else if (newKeyframe)
+            {
+                closestKeyframe.Channels.Remove(closestChannelNode.FullName);
+            }
+
+            keyframeManager.NotifyKeyframesChanged();
+        }
+
         private void KeyframeControl_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.Clear(BackColor);
             if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
 
-            if (rowSource != null)
+            if (rowSource != null && audioPlayer != null && audioPlayer.IsAudioLoaded && rightTime > leftTime)
             {
                 DrawKeyframes(e.Graphics);
             }

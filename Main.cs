@@ -42,6 +42,7 @@ namespace GarageLights
             audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
             audioPlayer.PlaybackError += audioPlayer_PlaybackError;
             multiquence1.AudioPlayer = audioPlayer;
+            multiquence1.KeyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -109,13 +110,22 @@ namespace GarageLights
 
         private void audioPlayer_AudioPositionChanged(object sender, AudioPositionChangedEventArgs e)
         {
-            if (controllerManager != null && multiquence1.KeyframeManager.Keyframes != null)
-            {
-                controllerManager.WriteValues(
-                    e.AudioPosition,
-                    multiquence1.KeyframeManager.GetKeyframesByControllerAndAddress(multiquence1.GetChannels()));
-            }
+            UpdateControllers();
             updateAudioPosition.Trigger(e.AudioPosition);
+        }
+
+        private void keyframeManager_KeyframesChanged(object sender, EventArgs e)
+        {
+            UpdateControllers();
+        }
+
+        private void UpdateControllers()
+        {
+            if (controllerManager != null && multiquence1.KeyframeManager.Keyframes != null && audioPlayer != null)
+            {
+                var keyframes = multiquence1.KeyframeManager.GetKeyframesByControllerAndAddress(multiquence1.GetChannels());
+                controllerManager.WriteValues(audioPlayer.AudioPosition, keyframes);
+            }
         }
 
         private void OnAudioPositionChange(float audioPosition)

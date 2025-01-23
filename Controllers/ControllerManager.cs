@@ -49,7 +49,7 @@ namespace GarageLights.Controllers
             // Short-circuit if we're before the start of keyframes or after the end
             if (t < keyframes[0].Time)
             {
-                return keyframes[0].Keyframe.Value;
+                return 0;
             }
             if (t >= keyframes[keyframes.Count - 1].Time)
             {

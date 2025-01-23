@@ -22,8 +22,8 @@ namespace GarageLights.Audio
         private float rightTime;
 
         private ThrottledPainter bgPainter;
-        private bool isDragging;
         private Point dragStartPoint;
+        private float dragStartTime;
         private float dragStartLeftTime;
 
         public event EventHandler<AudioViewChangedEventArgs> AudioViewChanged;
@@ -204,13 +204,10 @@ namespace GarageLights.Audio
 
         private void AudioControl_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Middle)
-            {
-                isDragging = true;
-                dragStartPoint = e.Location;
-                dragStartLeftTime = leftTime;
-            }
-            else if (e.Button == MouseButtons.Left && audioPlayer != null && audioPlayer.IsAudioLoaded)
+            dragStartPoint = e.Location;
+            dragStartTime = TimeAt(e.X);
+            dragStartLeftTime = leftTime;
+            if (e.Button == MouseButtons.Left && audioPlayer != null && audioPlayer.IsAudioLoaded)
             {
                 audioPlayer.Stop();
                 audioPlayer.AudioPosition = TimeAt(e.X);
@@ -219,7 +216,7 @@ namespace GarageLights.Audio
 
         private void AudioControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (isDragging && audioPlayer != null && audioPlayer.IsAudioLoaded)
+            if (e.Button == MouseButtons.Middle && audioPlayer != null && audioPlayer.IsAudioLoaded)
             {
                 float timeWidth = rightTime - leftTime;
                 float dragStartRightTime = dragStartLeftTime + timeWidth;
@@ -236,15 +233,15 @@ namespace GarageLights.Audio
                 }
                 UpdateAudioView(dragStartLeftTime - deltaTime, dragStartRightTime - deltaTime);
             }
+            else if (e.Button == MouseButtons.Left && audioPlayer != null && audioPlayer.IsAudioLoaded)
+            {
+                audioPlayer.AudioPosition = TimeAt(e.X);
+            }
         }
 
         private void AudioControl_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Middle)
-            {
-                isDragging = false;
-            }
-            else if (audioPlayer == null || !audioPlayer.IsAudioLoaded)
+            if (audioPlayer == null || !audioPlayer.IsAudioLoaded)
             {
                 FileLoadRequested?.Invoke(this, EventArgs.Empty);
             }

@@ -16,5 +16,9 @@ namespace GarageLights.Keyframes
         Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> GetKeyframesByControllerAndAddress(IEnumerable<ChannelNode> nodes);
 
         event EventHandler ActiveKeyframeChanged;
+
+        void NotifyKeyframesChanged();
+
+        event EventHandler KeyframesChanged;
     }
 }

@@ -74,6 +74,12 @@
     <Compile Include="Controllers\DummyController.cs" />
     <Compile Include="Controllers\IController.cs" />
     <Compile Include="Controllers\WemoController.cs" />
+    <Compile Include="Dialogs\ChannelValueDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ChannelValueDialog.Designer.cs">
+      <DependentUpon>ChannelValueDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Keyframes\IKeyframeManager.cs" />
     <Compile Include="Keyframes\KeyframeManager.cs" />
     <Compile Include="Lights\ChannelNode.cs" />
@@ -117,6 +123,9 @@
     <Compile Include="Audio\ViewableWaveform.cs" />
     <Compile Include="ThrottledPainter.cs" />
     <Compile Include="ThrottledUiCall.cs" />
+    <EmbeddedResource Include="Dialogs\ChannelValueDialog.resx">
+      <DependentUpon>ChannelValueDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

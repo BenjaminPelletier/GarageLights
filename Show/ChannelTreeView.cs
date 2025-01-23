@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GarageLights.Lights;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -26,9 +27,57 @@ namespace GarageLights.Show
             NodeLayoutChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        public ChannelNodeTreeNode ClosestChannelNodeTreeNode(float y)
+        {
+            ChannelNodeTreeNode closestNode = null;
+            float dy = float.PositiveInfinity;
+            foreach (ChannelNodeTreeNode channelNodeTreeNode in GetChannelNodeTreeNodes())
+            {
+                var bounds = channelNodeTreeNode.Bounds;
+                if (bounds.Top <= y && y <= bounds.Bottom)
+                {
+                    return channelNodeTreeNode;
+                }
+                if (bounds.Bottom < 0 || bounds.Top > ClientSize.Height) { continue; }
+                float cdy = y < bounds.Top ? bounds.Top - y : y - bounds.Bottom;
+                if (closestNode == null || cdy < dy)
+                {
+                    closestNode = channelNodeTreeNode;
+                    dy = cdy;
+                }
+            }
+            return closestNode;
+        }
+
+        private IEnumerable<ChannelNodeTreeNode> GetChannelNodeTreeNodes(TreeNode parent = null)
+        {
+            if (parent == null)
+            {
+                foreach (TreeNode node in Nodes)
+                {
+                    foreach (ChannelNodeTreeNode descendant in GetChannelNodeTreeNodes(node))
+                    {
+                        yield return descendant;
+                    }
+                }
+            }
+            else
+            {
+                var channelTreeNode = (ChannelNodeTreeNode)parent;
+                yield return channelTreeNode;
+                foreach (TreeNode child in parent.Nodes)
+                {
+                    foreach (ChannelNodeTreeNode descendant in GetChannelNodeTreeNodes(child))
+                    {
+                        yield return descendant;
+                    }
+                }
+            }
+        }
+
         public IEnumerable<NodeBounds> GetVisibleNodes()
         {
-            foreach (TreeNode topNode in this.Nodes)
+            foreach (TreeNode topNode in Nodes)
             {
                 foreach (TreeNode node in Descendants(topNode))
                 {
