@@ -74,7 +74,8 @@
     <Compile Include="Controllers\DummyController.cs" />
     <Compile Include="Controllers\IController.cs" />
     <Compile Include="Controllers\WemoController.cs" />
-    <Compile Include="Keyframes\IKeyframeManger.cs" />
+    <Compile Include="Keyframes\IKeyframeManager.cs" />
+    <Compile Include="Keyframes\KeyframeManager.cs" />
     <Compile Include="Lights\ChannelNode.cs" />
     <Compile Include="Lights\Controller.cs" />
     <Compile Include="Lights\Channel.cs" />

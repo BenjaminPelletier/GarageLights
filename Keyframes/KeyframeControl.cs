@@ -14,29 +14,26 @@ using System.Windows.Forms;
 
 namespace GarageLights.Keyframes
 {
-    internal class KeyframeControl : UserControl, IKeyframeManger
+    internal class KeyframeControl : UserControl
     {
         const float KeyframeSize = 8f;
         static ChannelKeyframe DefaultKeyframe = new ChannelKeyframe() { Value = 0, Style = KeyframeStyle.Linear };
         const float RowMargin = 2f;
 
         AudioPlayer audioPlayer;
+        IKeyframeManager keyframeManager;
         ChannelTreeView rowSource;
 
         private ThrottledPainter bgPainter;
 
-        List<ShowKeyframe> keyframes;
-        Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
-        ShowKeyframe activeKeyframe;
-
         float leftTime;
         float rightTime;
-
-        public event EventHandler ActiveKeyframeChanged;
 
         public KeyframeControl()
         {
             DoubleBuffered = true;
+            keyframeManager = new KeyframeManager();
+            keyframeManager.ActiveKeyframeChanged += keyframeManager_ActiveKeyframeChanged;
             bgPainter = new ThrottledPainter(this, KeyframeControl_Paint);
             Paint += bgPainter.Paint;
         }
@@ -49,6 +46,8 @@ namespace GarageLights.Keyframes
                 audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
             }
         }
+
+        public IKeyframeManager KeyframeManager { get { return keyframeManager; } }
 
         public void SetTimeRange(float leftTime, float rightTime)
         {
@@ -72,116 +71,10 @@ namespace GarageLights.Keyframes
             bgPainter.RequestPaint(!audioPlayer.Playing);
         }
 
-        #region IKeyframeManager
-
-        public List<ShowKeyframe> Keyframes
+        private void keyframeManager_ActiveKeyframeChanged(object sender, EventArgs e)
         {
-            get { return keyframes; }
-            set
-            {
-                keyframesByControllerAndAddress = null;
-                keyframes = value;
-            }
+            Invalidate();
         }
-
-        public ShowKeyframe ActiveKeyframe
-        {
-            get { return activeKeyframe; }
-            set
-            {
-                if (value != activeKeyframe)
-                {
-                    activeKeyframe = value;
-                    // TODO: Seek to new keyframe unless audio is playing
-                    ActiveKeyframeChanged?.Invoke(this, EventArgs.Empty);
-                    Invalidate();
-                }
-            }
-        }
-
-        public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> KeyframesByControllerAndAddress
-        {
-            get
-            {
-                if (keyframesByControllerAndAddress == null && keyframes != null && rowSource != null)
-                {
-                    var topNodes = new List<ChannelNode>();
-                    foreach (TreeNode node in rowSource.Nodes)
-                    {
-                        topNodes.Add((node as ChannelNodeTreeNode).ChannelNode);
-                    }
-                    keyframesByControllerAndAddress = OrganizeKeyframesByControllerAndAddress(keyframes, topNodes);
-                }
-                return keyframesByControllerAndAddress;
-            }
-        }
-
-        private static Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> OrganizeKeyframesByControllerAndAddress(List<ShowKeyframe> keyframes, IEnumerable<ChannelNode> channelNodes)
-        {
-            Dictionary<string, Channel> channelsByFullName = MapChannelNodes(channelNodes);
-
-            var addressKeyframesByController = new Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>>();
-            foreach (ShowKeyframe f in keyframes)
-            {
-                if (f.Channels == null) { continue; }
-                foreach (var fullChannelNameAndKeyframe in f.Channels)
-                {
-                    string fullName = fullChannelNameAndKeyframe.Key;
-                    var channelKeyframe = fullChannelNameAndKeyframe.Value;
-
-                    Channel channel = channelsByFullName[fullName];
-
-                    // Select output by controller
-                    Dictionary<int, List<TimedChannelKeyframe>> keyframesByAddress;
-                    if (!addressKeyframesByController.TryGetValue(channel.Controller, out keyframesByAddress))
-                    {
-                        keyframesByAddress = new Dictionary<int, List<TimedChannelKeyframe>>();
-                        addressKeyframesByController[channel.Controller] = keyframesByAddress;
-                    }
-
-                    // Select output by address
-                    List<TimedChannelKeyframe> channelKeyframes;
-                    if (!keyframesByAddress.TryGetValue(channel.Address, out channelKeyframes))
-                    {
-                        channelKeyframes = new List<TimedChannelKeyframe>();
-                        keyframesByAddress[channel.Address] = channelKeyframes;
-                    }
-
-                    // Add a new channel keyframe
-                    channelKeyframes.Add(new TimedChannelKeyframe(f.Time, channelKeyframe));
-                }
-            }
-            return addressKeyframesByController;
-        }
-
-        private static Dictionary<string, Channel> MapChannelNodes(IEnumerable<ChannelNode> channelNodes)
-        {
-            var channelsByFullName = new Dictionary<string, Channel>();
-            foreach (ChannelNode node in channelNodes)
-            {
-                if (node.Group != null)
-                {
-                    foreach (var channelByName in MapChannelNodes(node.Group.Nodes))
-                    {
-                        Channel mappedChannel = channelByName.Value
-                            .OffsetAddress(node.Group.Address)
-                            .WithParentController(node.Group.Controller);
-                        channelsByFullName[node.Name + "." + channelByName.Key] = mappedChannel;
-                    }
-                }
-                else if (node.Channel != null)
-                {
-                    channelsByFullName[node.Name] = node.Channel;
-                }
-                else
-                {
-                    throw new NotImplementedException("ChannelNode '" + node.Name + "' was not a Group node nor Channel node");
-                }
-            }
-            return channelsByFullName;
-        }
-
-        #endregion
 
         private void KeyframeControl_Paint(object sender, PaintEventArgs e)
         {
@@ -199,11 +92,6 @@ namespace GarageLights.Keyframes
                 float x = (currentTime - leftTime) / (rightTime - leftTime) * ClientSize.Width;
                 e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
             }
-
-            if (activeKeyframe != null)
-            {
-
-            }
         }
 
         private void DrawKeyframes(Graphics g)
@@ -212,7 +100,7 @@ namespace GarageLights.Keyframes
             var rowFrames = new Dictionary<ChannelNodeTreeNode, List<TimedChannelKeyframe>>();
 
             // Calculate keyframes per row
-            if (keyframes != null)
+            if (keyframeManager.Keyframes != null)
             {
                 foreach (NodeBounds nodeBounds in rowSource.GetVisibleNodes())
                 {
@@ -221,7 +109,7 @@ namespace GarageLights.Keyframes
                     // Collect a complete list of keyframes to draw, including implicit keyframes at the beginning
                     // and end of the song
                     string rowName = nodeBounds.Node.FullName;
-                    List<TimedChannelKeyframe> frames = keyframes
+                    List<TimedChannelKeyframe> frames = keyframeManager.Keyframes
                         .Where(f => f.Channels != null && f.Channels.ContainsKey(rowName))
                         .Select(f => new TimedChannelKeyframe(f.Time, f.Channels[rowName]))
                         .ToList();
@@ -285,14 +173,14 @@ namespace GarageLights.Keyframes
                 g.DrawString(nodeBounds.Node.Text, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
             }
 
-            if (keyframes != null)
+            if (keyframeManager.Keyframes != null)
             {
                 // Draw keyframe times
-                foreach (ShowKeyframe f in keyframes)
+                foreach (ShowKeyframe f in keyframeManager.Keyframes)
                 {
                     if (f.Time < leftTime || f.Time > rightTime) { continue; }
                     float x = ClientSize.Width * (f.Time - leftTime) / (rightTime - leftTime);
-                    g.DrawLine(activeKeyframe == f ? Pens.Orange : Pens.DarkGreen, x, 0, x, ClientSize.Height);
+                    g.DrawLine(keyframeManager.ActiveKeyframe == f ? Pens.Orange : Pens.DarkGreen, x, 0, x, ClientSize.Height);
                 }
 
                 // Draw keyframe markers/icons
@@ -311,7 +199,7 @@ namespace GarageLights.Keyframes
                         path.AddLine(x + KeyframeSize / 2, y, x, y + KeyframeSize / 2);
                         path.AddLine(x, y + KeyframeSize / 2, x - KeyframeSize / 2, y);
                         path.AddLine(x - KeyframeSize / 2, y, x, y - KeyframeSize / 2);
-                        if (activeKeyframe != null && kf.Time == activeKeyframe.Time)
+                        if (keyframeManager.ActiveKeyframe != null && kf.Time == keyframeManager.ActiveKeyframe.Time)
                         {
                             g.FillPath(Brushes.LightGoldenrodYellow, path);
                             g.DrawPath(Pens.DarkOrange, path);

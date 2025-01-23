@@ -111,7 +111,9 @@ namespace GarageLights
         {
             if (controllerManager != null && multiquence1.KeyframeManager.Keyframes != null)
             {
-                controllerManager.WriteValues(e.AudioPosition, multiquence1.KeyframeManager.KeyframesByControllerAndAddress);
+                controllerManager.WriteValues(
+                    e.AudioPosition,
+                    multiquence1.KeyframeManager.GetKeyframesByControllerAndAddress(multiquence1.GetChannels()));
             }
             updateAudioPosition.Trigger(e.AudioPosition);
         }

@@ -90,11 +90,9 @@
             // 
             // keyframeControl1
             // 
-            this.keyframeControl1.ActiveKeyframe = null;
             this.keyframeControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.keyframeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.keyframeControl1.Keyframes = null;
             this.keyframeControl1.Location = new System.Drawing.Point(6, 212);
             this.keyframeControl1.Name = "keyframeControl1";
             this.keyframeControl1.RowSource = null;

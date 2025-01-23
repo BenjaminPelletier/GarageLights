@@ -26,7 +26,7 @@ namespace GarageLights.Show
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
             keyframeControl1.RowSource = tvChannels;
-            controlPanel1.KeyframeManager = keyframeControl1;
+            controlPanel1.KeyframeManager = keyframeControl1.KeyframeManager;
         }
 
         public AudioPlayer AudioPlayer
@@ -41,7 +41,7 @@ namespace GarageLights.Show
             }
         }
 
-        public IKeyframeManger KeyframeManager { get { return keyframeControl1; } }
+        public IKeyframeManager KeyframeManager { get { return keyframeControl1.KeyframeManager; } }
 
         public Project Project
         {
@@ -63,13 +63,21 @@ namespace GarageLights.Show
                     {
                         project.Keyframes = new List<ShowKeyframe>();
                     }
-                    keyframeControl1.Keyframes = project.Keyframes;
+                    keyframeControl1.KeyframeManager.Keyframes = project.Keyframes;
 
                     if (project.AudioFile != null)
                     {
                         audioPlayer.LoadAudio(project.AudioFile);
                     }
                 }
+            }
+        }
+
+        public IEnumerable<ChannelNode> GetChannels()
+        {
+            foreach (TreeNode node in tvChannels.Nodes)
+            {
+                yield return (node as ChannelNodeTreeNode).ChannelNode;
             }
         }
 
