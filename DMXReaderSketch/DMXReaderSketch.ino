@@ -1,14 +1,21 @@
-#include <SoftwareSerial.h>
+// This sketch captures 250k baud 8N2 serial data from a DMX shield and reports PRINT_CHANNELS of this data to the USB serial port.
+//
+// Requires an Arduino Mega because Unos only have one hardware serial port.  We need one for DMX input and one for USB-serial.
+// Requires a DMX shield.
+// Must connect pin 3 (DMX signal from shield) to pin 17 (RX2 on AVR).
+// DMX shield jumpers should be set:
+//    - EN (not ~EN)
+//    - Slave (not DE)
+//    - TX-io (not TX-uart)
+//    - RX-io (not RX-uart)
 
-#define RX_PIN 3  // Pin where the serial data is received
 #define PACKET_SIZE 200  // Maximum packet size (bytes / DMX channels + overhead)
-#define BAUD_RATE 250000
-#define PRINT_PERIOD_LIMIT_MS 20
-#define N_PACKETS 5  // Number of packets to capture before analyzing
+#define BAUD_RATE 250000  // Baud rate of DMX protocol
+#define PRINT_PERIOD_LIMIT_MS 20  // Just in case, limit USB-serial printing to no more than once every this number of milliseconds.
+#define N_PACKETS 3  // Number of packets to capture before analyzing
 #define PRINT_CHANNELS 16  // Number of channels to print to USB serial
 #define FIRST_CHANNEL 2  // Packet index of first channel
-
-SoftwareSerial softSerial(RX_PIN, -1);  // RX only
+#define MIN_BREAK_MICROS 200  // A break between packets will be at least this many microseconds
 
 uint8_t packets[PACKET_SIZE * N_PACKETS];  // Buffer to store the received packets
 uint8_t values[N_PACKETS];  // Buffer to count values for a channel across packets
@@ -18,31 +25,29 @@ size_t packetOffset = 0;
 size_t byteIndex = 0;
 bool capturingPacket = false;
 unsigned long lastPrint;
+unsigned long lastByteTime;
 
 void setup() {
   Serial.begin(115200);  // For interfacing with PC
-  Serial.println("@DMXReaderSketch 0.1.0");
+  Serial.println("@DMXReaderSketch 0.2.0");
   Serial.flush();
-  pinMode(RX_PIN, INPUT);
-  softSerial.begin(BAUD_RATE);
+  Serial2.begin(BAUD_RATE, SERIAL_8N2);
   lastPrint = millis();
   Serial.println("@Starting");
 }
 
 void loop() {
-  static unsigned long lastByteTime = 0;
-
   // Read bytes if available
-  while (softSerial.available()) {
+  while (Serial2.available()) {
+    // Read the next byte
+    uint8_t byte = Serial2.read();
+    lastByteTime = micros();
+
     if (!capturingPacket) {
       // Start a new packet
       capturingPacket = true;
       byteIndex = 0;
     }
-
-    // Read the next byte
-    uint8_t byte = softSerial.read();
-    lastByteTime = millis();
 
     // Store the byte in the buffer
     if (byteIndex < PACKET_SIZE) {
@@ -53,18 +58,20 @@ void loop() {
     }
   }
 
-  // Check for break condition (idle line for more than 10ms)
-  if (capturingPacket && (millis() - lastByteTime > 10)) {
+  // Check for break condition (idle line for more than MIN_BREAK_MICROS)
+  if (capturingPacket && (micros() - lastByteTime > MIN_BREAK_MICROS)) {
     // End of packet detected
-    packetOffset += PACKET_SIZE;
+    if (byteIndex >= FIRST_CHANNEL + PRINT_CHANNELS) {
+      // Minimum number of bytes for a valid packet obtained
+      packetOffset += PACKET_SIZE;
+    } else {
+      Serial.print("!Packet too small: ");
+      Serial.println(byteIndex);
+    }
     if (packetOffset >= PACKET_SIZE * N_PACKETS) {
+      // All N_PACKETS have been collected
       packetOffset = 0;
-      if (byteIndex >= FIRST_CHANNEL + PRINT_CHANNELS) {
-        printChannels();
-      } else {
-        Serial.print("!Packet too small: ");
-        Serial.println(byteIndex);
-      }
+      printChannels();
     }
     capturingPacket = false;
   }
@@ -86,20 +93,17 @@ void printChannels() {
         }
       }
     }
-    // Serial.print("C"); Serial.print(c); Serial.print(": ");
     uint8_t bestCount = 0;
     for (uint8_t i = 0; i < N_PACKETS; i++) {
-      // Serial.print(values[i], HEX); Serial.print("@"); Serial.print(counts[i]); Serial.print(' ');
       if (counts[i] > bestCount) {
         printValues[c] = values[i];
         bestCount = counts[i];
       }
       if (counts[i] >= N_PACKETS / 2 + 1) {
-        // Serial.print("-> "); Serial.print(printValues[c], HEX);
         break;
       }
     }
-    // Serial.println();
+    printValues[c] = packets[(N_PACKETS - 1) * PACKET_SIZE + FIRST_CHANNEL + c];
   }
   if (millis() >= lastPrint + PRINT_PERIOD_LIMIT_MS) {
     for (size_t c = 0; c < n; c++) {
