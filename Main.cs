@@ -1,5 +1,7 @@
 ﻿using GarageLights.Audio;
 using GarageLights.Controllers;
+using GarageLights.InputDevices.Definitions;
+using GarageLights.InputDevices.UI;
 using GarageLights.Lights;
 using GarageLights.Properties;
 using GarageLights.Show;
@@ -31,6 +33,7 @@ namespace GarageLights
         private GarageLightsSettings settings;
         private ControllerManager controllerManager;
         private AudioPlayer audioPlayer;
+        private IChannelInputDevice channelInputDevice;
 
         private ThrottledUiCall<float> updateAudioPosition;
 
@@ -148,6 +151,39 @@ namespace GarageLights
         private void tsbStop_Click(object sender, EventArgs e)
         {
             audioPlayer.Stop();
+        }
+
+        private void selectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selector = new ChannelInputDeviceSelector();
+            if (selector.ShowDialog(this) == DialogResult.OK)
+            {
+                ChannelInputDevice definition = selector.ChannelInputDevice;
+                IChannelInputDevice newDevice = InputDevices.Implementations.ChannelInputDevice.Create(definition);
+                if (channelInputDevice != null)
+                {
+                    channelInputDevice.ChannelValuesChanged -= channelInputDevice_ChannelValuesChanged;
+                    channelInputDevice.Error -= channelInputDevice_Error;
+                }
+                channelInputDevice = newDevice;
+                channelInputDevice.ChannelValuesChanged += channelInputDevice_ChannelValuesChanged;
+                channelInputDevice.Error += channelInputDevice_Error;
+                settings.ChannelInputDevice = definition;
+            }
+        }
+
+        private void channelInputDevice_ChannelValuesChanged(object sender, ChannelValuesChangedEventArgs e)
+        {
+            
+        }
+
+        private void channelInputDevice_Error(object sender, ChannelInputDeviceErrorEventArgs e)
+        {
+            Invoke((Action)(() =>
+            {
+                MessageBox.Show(this, "Channel input device error: " + e.Exception.Message, "Channel input device error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.Print(e.Exception.ToString());
+            }));
         }
     }
 }

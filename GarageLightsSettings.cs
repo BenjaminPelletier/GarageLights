@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GarageLights.InputDevices.Definitions;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace GarageLights
     internal class GarageLightsSettings
     {
         private string projectFile;
+        private ChannelInputDevice channelInputDevice;
 
         public event EventHandler Changed;
 
@@ -23,6 +25,20 @@ namespace GarageLights
                 if (value != projectFile)
                 {
                     projectFile = value;
+                    Changed?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [JsonProperty]
+        public ChannelInputDevice ChannelInputDevice
+        {
+            get { return channelInputDevice; }
+            set
+            {
+                if (JsonConvert.SerializeObject(channelInputDevice) != JsonConvert.SerializeObject(value))
+                {
+                    channelInputDevice = value;
                     Changed?.Invoke(this, EventArgs.Empty);
                 }
             }

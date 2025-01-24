@@ -80,6 +80,16 @@
     <Compile Include="Dialogs\ChannelValueDialog.Designer.cs">
       <DependentUpon>ChannelValueDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="InputDevices\Definitions\ChannelInputDevice.cs" />
+    <Compile Include="InputDevices\Implementations\ChannelInputDevice.cs" />
+    <Compile Include="InputDevices\Implementations\SerialDmxReader.cs" />
+    <Compile Include="InputDevices\Definitions\IChannelInputDevice.cs" />
+    <Compile Include="InputDevices\UI\ChannelInputDeviceSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InputDevices\UI\ChannelInputDeviceSelector.Designer.cs">
+      <DependentUpon>ChannelInputDeviceSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="Keyframes\IKeyframeManager.cs" />
     <Compile Include="Keyframes\KeyframeManager.cs" />
     <Compile Include="Lights\ChannelNode.cs" />
@@ -125,6 +135,9 @@
     <Compile Include="ThrottledUiCall.cs" />
     <EmbeddedResource Include="Dialogs\ChannelValueDialog.resx">
       <DependentUpon>ChannelValueDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InputDevices\UI\ChannelInputDeviceSelector.resx">
+      <DependentUpon>ChannelInputDeviceSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>

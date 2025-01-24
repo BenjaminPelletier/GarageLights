@@ -1,3 +1,7 @@
-Interpolation prior to first keyframe
+* Interpolation prior to first keyframe
 	* Add new keyframe before first one in example
 	* Display interpolates from 0, but device snaps from 0 at keyframe
+* Strictly-type DMX address and channel value
+* Separate controllers into definitions and implementations
+* UI allowing user to choose alternate controller implementations if one specified in project cannot be used
+* UI allowing ChannelInputDevice to be selected

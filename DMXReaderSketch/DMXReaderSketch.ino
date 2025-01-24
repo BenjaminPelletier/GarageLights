@@ -13,8 +13,8 @@
 #define BAUD_RATE 250000  // Baud rate of DMX protocol
 #define PRINT_PERIOD_LIMIT_MS 20  // Just in case, limit USB-serial printing to no more than once every this number of milliseconds.
 #define N_PACKETS 3  // Number of packets to capture before analyzing
-#define PRINT_CHANNELS 16  // Number of channels to print to USB serial
-#define FIRST_CHANNEL 2  // Packet index of first channel
+#define PRINT_CHANNELS 17  // Number of channels to print to USB serial
+#define FIRST_CHANNEL 1  // Packet index of first channel
 #define MIN_BREAK_MICROS 200  // A break between packets will be at least this many microseconds
 
 uint8_t packets[PACKET_SIZE * N_PACKETS];  // Buffer to store the received packets
@@ -29,7 +29,7 @@ unsigned long lastByteTime;
 
 void setup() {
   Serial.begin(115200);  // For interfacing with PC
-  Serial.println("@DMXReaderSketch 0.2.0");
+  Serial.println("@DMXReaderSketch 0.3.0");
   Serial.flush();
   Serial2.begin(BAUD_RATE, SERIAL_8N2);
   lastPrint = millis();

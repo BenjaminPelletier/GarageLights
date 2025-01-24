@@ -45,6 +45,8 @@ namespace GarageLights
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsslAudioPosition = new System.Windows.Forms.ToolStripStatusLabel();
             this.multiquence1 = new GarageLights.Show.Multiquence();
+            this.inputDeviceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -58,7 +60,8 @@ namespace GarageLights
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.inputDeviceToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1420, 33);
@@ -160,6 +163,21 @@ namespace GarageLights
             this.multiquence1.Size = new System.Drawing.Size(1420, 578);
             this.multiquence1.TabIndex = 4;
             // 
+            // inputDeviceToolStripMenuItem
+            // 
+            this.inputDeviceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectToolStripMenuItem});
+            this.inputDeviceToolStripMenuItem.Name = "inputDeviceToolStripMenuItem";
+            this.inputDeviceToolStripMenuItem.Size = new System.Drawing.Size(121, 29);
+            this.inputDeviceToolStripMenuItem.Text = "&Input device";
+            // 
+            // selectToolStripMenuItem
+            // 
+            this.selectToolStripMenuItem.Name = "selectToolStripMenuItem";
+            this.selectToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.selectToolStripMenuItem.Text = "&Select...";
+            this.selectToolStripMenuItem.Click += new System.EventHandler(this.selectToolStripMenuItem_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -199,6 +217,8 @@ namespace GarageLights
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tsslAudioPosition;
         private Multiquence multiquence1;
+        private System.Windows.Forms.ToolStripMenuItem inputDeviceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectToolStripMenuItem;
     }
 }
 
