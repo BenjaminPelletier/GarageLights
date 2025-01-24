@@ -44,9 +44,10 @@ namespace GarageLights
             this.tsbStop = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsslAudioPosition = new System.Windows.Forms.ToolStripStatusLabel();
-            this.multiquence1 = new GarageLights.Show.Multiquence();
             this.inputDeviceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.multiquence1 = new GarageLights.Show.Multiquence();
+            this.sfdProject = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -81,21 +82,24 @@ namespace GarageLights
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(155, 30);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
+            this.saveToolStripMenuItem.Enabled = false;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(155, 30);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
             this.saveToolStripMenuItem.Text = "&Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveasToolStripMenuItem
             // 
             this.saveasToolStripMenuItem.Name = "saveasToolStripMenuItem";
-            this.saveasToolStripMenuItem.Size = new System.Drawing.Size(155, 30);
-            this.saveasToolStripMenuItem.Text = "Save &as";
+            this.saveasToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.saveasToolStripMenuItem.Text = "Save &as...";
+            this.saveasToolStripMenuItem.Click += new System.EventHandler(this.saveasToolStripMenuItem_Click);
             // 
             // ofdProject
             // 
@@ -153,16 +157,6 @@ namespace GarageLights
             this.tsslAudioPosition.Size = new System.Drawing.Size(22, 25);
             this.tsslAudioPosition.Text = "0";
             // 
-            // multiquence1
-            // 
-            this.multiquence1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.multiquence1.Location = new System.Drawing.Point(0, 64);
-            this.multiquence1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.multiquence1.Name = "multiquence1";
-            this.multiquence1.Project = null;
-            this.multiquence1.Size = new System.Drawing.Size(1420, 578);
-            this.multiquence1.TabIndex = 4;
-            // 
             // inputDeviceToolStripMenuItem
             // 
             this.inputDeviceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -177,6 +171,20 @@ namespace GarageLights
             this.selectToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
             this.selectToolStripMenuItem.Text = "&Select...";
             this.selectToolStripMenuItem.Click += new System.EventHandler(this.selectToolStripMenuItem_Click);
+            // 
+            // multiquence1
+            // 
+            this.multiquence1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.multiquence1.Location = new System.Drawing.Point(0, 64);
+            this.multiquence1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.multiquence1.Name = "multiquence1";
+            this.multiquence1.Project = null;
+            this.multiquence1.Size = new System.Drawing.Size(1420, 578);
+            this.multiquence1.TabIndex = 4;
+            // 
+            // sfdProject
+            // 
+            this.sfdProject.Filter = "Project files|*.json";
             // 
             // frmMain
             // 
@@ -219,6 +227,7 @@ namespace GarageLights
         private Multiquence multiquence1;
         private System.Windows.Forms.ToolStripMenuItem inputDeviceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem selectToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog sfdProject;
     }
 }
 

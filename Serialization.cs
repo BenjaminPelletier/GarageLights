@@ -12,6 +12,7 @@ namespace GarageLights
         public static JsonSerializer GetSerializer()
         {
             var serializer = new JsonSerializer();
+            serializer.Formatting = Formatting.Indented;
             return serializer;
         }
     }

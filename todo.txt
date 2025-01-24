@@ -5,3 +5,5 @@
 * Separate controllers into definitions and implementations
 * UI allowing user to choose alternate controller implementations if one specified in project cannot be used
 * UI allowing ChannelInputDevice to be selected
+* Parse DMX reader serial lines manually and drop earlier lines when multiple lines are available at a time
+* Add UI-less project manipulator and invoke it to make project changes

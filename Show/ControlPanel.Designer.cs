@@ -32,12 +32,16 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbRemoveKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbAddKeyframe = new System.Windows.Forms.ToolStripButton();
-            this.tsbGoToEnd = new System.Windows.Forms.ToolStripButton();
             this.tsbNextKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbPreviousKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbGoToBeginning = new System.Windows.Forms.ToolStripButton();
             this.tsbMoveKeyframe = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.tsbWrite = new System.Windows.Forms.ToolStripButton();
+            this.tsbRecordStart = new System.Windows.Forms.ToolStripButton();
+            this.tsbRecordStop = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -47,7 +51,6 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbRemoveKeyframe,
             this.tsbAddKeyframe,
-            this.tsbGoToEnd,
             this.tsbNextKeyframe,
             this.tsbPreviousKeyframe,
             this.tsbGoToBeginning,
@@ -78,17 +81,6 @@
             this.tsbAddKeyframe.Size = new System.Drawing.Size(28, 28);
             this.tsbAddKeyframe.ToolTipText = "Add keyframe here";
             this.tsbAddKeyframe.Click += new System.EventHandler(this.tsbAddKeyframe_Click);
-            // 
-            // tsbGoToEnd
-            // 
-            this.tsbGoToEnd.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsbGoToEnd.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbGoToEnd.Image = ((System.Drawing.Image)(resources.GetObject("tsbGoToEnd.Image")));
-            this.tsbGoToEnd.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbGoToEnd.Name = "tsbGoToEnd";
-            this.tsbGoToEnd.Size = new System.Drawing.Size(28, 28);
-            this.tsbGoToEnd.ToolTipText = "Go to end";
-            this.tsbGoToEnd.Click += new System.EventHandler(this.tsbGoToEnd_Click);
             // 
             // tsbNextKeyframe
             // 
@@ -133,15 +125,64 @@
             this.tsbMoveKeyframe.ToolTipText = "Move keyframe to here";
             this.tsbMoveKeyframe.Click += new System.EventHandler(this.tsbMoveKeyframe_Click);
             // 
+            // toolStrip2
+            // 
+            this.toolStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.toolStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbWrite,
+            this.tsbRecordStart,
+            this.tsbRecordStop});
+            this.toolStrip2.Location = new System.Drawing.Point(0, 166);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(372, 31);
+            this.toolStrip2.TabIndex = 1;
+            this.toolStrip2.Text = "toolStrip2";
+            // 
+            // tsbWrite
+            // 
+            this.tsbWrite.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbWrite.Enabled = false;
+            this.tsbWrite.Image = ((System.Drawing.Image)(resources.GetObject("tsbWrite.Image")));
+            this.tsbWrite.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWrite.Name = "tsbWrite";
+            this.tsbWrite.Size = new System.Drawing.Size(28, 28);
+            this.tsbWrite.Text = "toolStripButton1";
+            this.tsbWrite.Click += new System.EventHandler(this.tsbWrite_Click);
+            // 
+            // tsbRecordStart
+            // 
+            this.tsbRecordStart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRecordStart.Image = ((System.Drawing.Image)(resources.GetObject("tsbRecordStart.Image")));
+            this.tsbRecordStart.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRecordStart.Name = "tsbRecordStart";
+            this.tsbRecordStart.Size = new System.Drawing.Size(28, 28);
+            this.tsbRecordStart.Text = "toolStripButton2";
+            this.tsbRecordStart.Click += new System.EventHandler(this.tsbRecordStart_Click);
+            // 
+            // tsbRecordStop
+            // 
+            this.tsbRecordStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRecordStop.Image = ((System.Drawing.Image)(resources.GetObject("tsbRecordStop.Image")));
+            this.tsbRecordStop.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRecordStop.Name = "tsbRecordStop";
+            this.tsbRecordStop.Size = new System.Drawing.Size(28, 28);
+            this.tsbRecordStop.Text = "toolStripButton3";
+            this.tsbRecordStop.Visible = false;
+            this.tsbRecordStop.Click += new System.EventHandler(this.tsbRecordStop_Click);
+            // 
             // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.toolStrip1);
             this.Name = "ControlPanel";
             this.Size = new System.Drawing.Size(372, 228);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -154,8 +195,11 @@
         private System.Windows.Forms.ToolStripButton tsbRemoveKeyframe;
         private System.Windows.Forms.ToolStripButton tsbPreviousKeyframe;
         private System.Windows.Forms.ToolStripButton tsbNextKeyframe;
-        private System.Windows.Forms.ToolStripButton tsbGoToEnd;
         private System.Windows.Forms.ToolStripButton tsbGoToBeginning;
         private System.Windows.Forms.ToolStripButton tsbMoveKeyframe;
+        private System.Windows.Forms.ToolStrip toolStrip2;
+        private System.Windows.Forms.ToolStripButton tsbWrite;
+        private System.Windows.Forms.ToolStripButton tsbRecordStart;
+        private System.Windows.Forms.ToolStripButton tsbRecordStop;
     }
 }

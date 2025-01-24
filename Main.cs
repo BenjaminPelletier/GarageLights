@@ -60,6 +60,8 @@ namespace GarageLights
             {
                 settings = JsonConvert.DeserializeObject<GarageLightsSettings>(settingsJson);
                 settings.Changed += Settings_Changed;
+                saveToolStripMenuItem.Enabled = settings.ProjectFile != null && settings.ProjectFile != "";
+                LoadChannelInputDevice(settings.ChannelInputDevice);
                 LoadProject(settings.ProjectFile);
             }
             else
@@ -83,10 +85,16 @@ namespace GarageLights
         void Settings_Changed(object sender, EventArgs e)
         {
             SaveSettings();
+            saveToolStripMenuItem.Enabled = settings.ProjectFile != null && settings.ProjectFile != "";
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (settings.ProjectFile != null)
+            {
+                ofdProject.FileName = Path.GetFileName(settings.ProjectFile);
+                ofdProject.InitialDirectory = Path.GetFileName(settings.ProjectFile);
+            }
             if (ofdProject.ShowDialog() == DialogResult.OK)
             {
                 LoadProject(ofdProject.FileName);
@@ -159,22 +167,21 @@ namespace GarageLights
             if (selector.ShowDialog(this) == DialogResult.OK)
             {
                 ChannelInputDevice definition = selector.ChannelInputDevice;
-                IChannelInputDevice newDevice = InputDevices.Implementations.ChannelInputDevice.Create(definition);
-                if (channelInputDevice != null)
-                {
-                    channelInputDevice.ChannelValuesChanged -= channelInputDevice_ChannelValuesChanged;
-                    channelInputDevice.Error -= channelInputDevice_Error;
-                }
-                channelInputDevice = newDevice;
-                channelInputDevice.ChannelValuesChanged += channelInputDevice_ChannelValuesChanged;
-                channelInputDevice.Error += channelInputDevice_Error;
+                LoadChannelInputDevice(definition);
                 settings.ChannelInputDevice = definition;
             }
         }
 
-        private void channelInputDevice_ChannelValuesChanged(object sender, ChannelValuesChangedEventArgs e)
+        private void LoadChannelInputDevice(ChannelInputDevice definition)
         {
-            
+            IChannelInputDevice newDevice = InputDevices.Implementations.ChannelInputDevice.Create(definition);
+            if (channelInputDevice != null)
+            {
+                channelInputDevice.Error -= channelInputDevice_Error;
+            }
+            channelInputDevice = newDevice;
+            channelInputDevice.Error += channelInputDevice_Error;
+            multiquence1.ChannelInputDevice = channelInputDevice;
         }
 
         private void channelInputDevice_Error(object sender, ChannelInputDeviceErrorEventArgs e)
@@ -184,6 +191,35 @@ namespace GarageLights
                 MessageBox.Show(this, "Channel input device error: " + e.Exception.Message, "Channel input device error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Debug.Print(e.Exception.ToString());
             }));
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveProject();
+        }
+
+        private void saveasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (settings.ProjectFile != null)
+            {
+                sfdProject.FileName = Path.GetFileName(settings.ProjectFile);
+                sfdProject.InitialDirectory = Path.GetDirectoryName(settings.ProjectFile);
+            }
+            if (sfdProject.ShowDialog(this) == DialogResult.OK)
+            {
+                SaveProject(sfdProject.FileName);
+                Text = "Garage Lights - " + Path.GetFileName(sfdProject.FileName);
+            }
+        }
+
+        private void SaveProject(string filename = null)
+        {
+            if (filename == null)
+            {
+                filename = settings.ProjectFile;
+            }
+            multiquence1.Project.Save(filename);
+            settings.ProjectFile = filename;
         }
     }
 }

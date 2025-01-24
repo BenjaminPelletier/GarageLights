@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.InputDevices.Definitions;
 using GarageLights.Keyframes;
 using GarageLights.Lights;
 using System;
@@ -38,6 +39,14 @@ namespace GarageLights.Show
                 keyframeControl1.AudioPlayer = audioPlayer;
                 showScroller1.AudioPlayer = audioPlayer;
                 controlPanel1.AudioPlayer = audioPlayer;
+            }
+        }
+
+        public IChannelInputDevice ChannelInputDevice
+        {
+            set
+            {
+
             }
         }
 

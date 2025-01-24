@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GarageLights.Audio;
 using GarageLights.Keyframes;
+using GarageLights.InputDevices.Definitions;
 
 namespace GarageLights.Show
 {
@@ -16,6 +17,8 @@ namespace GarageLights.Show
     {
         private AudioPlayer audioPlayer;
         private IKeyframeManager keyframeManager;
+        private IChannelInputDevice channelInputDevice;
+        private Dictionary<int, int> lastChannelValues;
 
         public ControlPanel()
         {
@@ -37,6 +40,24 @@ namespace GarageLights.Show
                 keyframeManager = value;
                 keyframeManager.ActiveKeyframeChanged += KeyframeControl_ActiveKeyframeChanged;
                 KeyframeControl_ActiveKeyframeChanged(this, EventArgs.Empty);
+            }
+        }
+
+        public IChannelInputDevice ChannelInputDevice
+        {
+            set
+            {
+                if (channelInputDevice != null)
+                {
+                    channelInputDevice.ChannelValuesChanged -= channelInputDevice_ChannelValuesChanged;
+                }
+                lastChannelValues = null;
+                tsbWrite.Enabled = false;
+                channelInputDevice = value;
+                if (channelInputDevice != null)
+                {
+                    channelInputDevice.ChannelValuesChanged += channelInputDevice_ChannelValuesChanged;
+                }
             }
         }
 
@@ -81,6 +102,22 @@ namespace GarageLights.Show
         {
             tsbRemoveKeyframe.Enabled = keyframeManager.ActiveKeyframe != null;
             tsbMoveKeyframe.Enabled = keyframeManager.ActiveKeyframe != null;
+            tsbWrite.Enabled = keyframeManager.ActiveKeyframe != null;
+        }
+
+        private void channelInputDevice_ChannelValuesChanged(object sender, ChannelValuesChangedEventArgs e)
+        {
+            bool inform = lastChannelValues == null;
+
+            lastChannelValues = e.ChannelValues;
+
+            if (inform)
+            {
+                BeginInvoke((Action)(() =>
+                {
+                    tsbWrite.Enabled = true;
+                }));
+            }
         }
 
         private void tsbRemoveKeyframe_Click(object sender, EventArgs e)
@@ -146,11 +183,6 @@ namespace GarageLights.Show
             }
         }
 
-        private void tsbGoToEnd_Click(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         private void tsbMoveKeyframe_Click(object sender, EventArgs e)
         {
             if (keyframeManager.ActiveKeyframe != null && audioPlayer != null)
@@ -158,6 +190,23 @@ namespace GarageLights.Show
                 keyframeManager.ActiveKeyframe.Time = audioPlayer.AudioPosition;
                 keyframeManager.NotifyKeyframesChanged();
             }
+        }
+
+        private void tsbWrite_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tsbRecordStart_Click(object sender, EventArgs e)
+        {
+            tsbRecordStart.Visible = false;
+            tsbRecordStop.Visible = true;
+        }
+
+        private void tsbRecordStop_Click(object sender, EventArgs e)
+        {
+            tsbRecordStop.Visible = false;
+            tsbRecordStart.Visible = true;
         }
     }
 }
