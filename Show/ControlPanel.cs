@@ -16,7 +16,7 @@ namespace GarageLights.Show
     internal partial class ControlPanel : UserControl
     {
         private AudioPlayer audioPlayer;
-        private IKeyframeManager keyframeManager;
+        private KeyframeManager keyframeManager;
         private IChannelInputDevice channelInputDevice;
         private Dictionary<int, int> lastChannelValues;
 
@@ -33,7 +33,7 @@ namespace GarageLights.Show
             }
         }
 
-        public IKeyframeManager KeyframeManager
+        public KeyframeManager KeyframeManager
         {
             set
             {

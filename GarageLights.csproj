@@ -90,7 +90,6 @@
     <Compile Include="InputDevices\UI\ChannelInputDeviceSelector.Designer.cs">
       <DependentUpon>ChannelInputDeviceSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Keyframes\IKeyframeManager.cs" />
     <Compile Include="Keyframes\KeyframeManager.cs" />
     <Compile Include="Lights\ChannelNode.cs" />
     <Compile Include="Lights\Controller.cs" />

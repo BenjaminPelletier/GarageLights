@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GarageLights.Keyframes
 {
-    class KeyframeManager : IKeyframeManager
+    class KeyframeManager
     {
         List<ShowKeyframe> keyframes;
         Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;

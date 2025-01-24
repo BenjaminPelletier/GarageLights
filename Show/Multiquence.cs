@@ -50,7 +50,7 @@ namespace GarageLights.Show
             }
         }
 
-        public IKeyframeManager KeyframeManager { get { return keyframeControl1.KeyframeManager; } }
+        public KeyframeManager KeyframeManager { get { return keyframeControl1.KeyframeManager; } }
 
         public Project Project
         {

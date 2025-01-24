@@ -22,7 +22,7 @@ namespace GarageLights.Keyframes
         const float RowMargin = 2f;
 
         AudioPlayer audioPlayer;
-        IKeyframeManager keyframeManager;
+        KeyframeManager keyframeManager;
         ChannelTreeView rowSource;
 
         private ThrottledPainter bgPainter;
@@ -50,7 +50,7 @@ namespace GarageLights.Keyframes
             }
         }
 
-        public IKeyframeManager KeyframeManager { get { return keyframeManager; } }
+        public KeyframeManager KeyframeManager { get { return keyframeManager; } }
 
         public void SetTimeRange(float leftTime, float rightTime)
         {
