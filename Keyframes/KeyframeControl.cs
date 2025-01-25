@@ -23,6 +23,7 @@ namespace GarageLights.Keyframes
 
         AudioPlayer audioPlayer;
         KeyframeManager keyframeManager;
+        ShowNavigator showNavigator;
         ChannelTreeView rowSource;
 
         private ThrottledPainter bgPainter;
@@ -33,9 +34,6 @@ namespace GarageLights.Keyframes
         public KeyframeControl()
         {
             DoubleBuffered = true;
-            keyframeManager = new KeyframeManager();
-            keyframeManager.ActiveKeyframeChanged += keyframeManager_ActiveKeyframeChanged;
-            keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
             bgPainter = new ThrottledPainter(this, KeyframeControl_Paint);
             Paint += bgPainter.Paint;
             MouseDoubleClick += KeyframeControl_MouseDoubleClick;
@@ -50,7 +48,31 @@ namespace GarageLights.Keyframes
             }
         }
 
-        public KeyframeManager KeyframeManager { get { return keyframeManager; } }
+        public KeyframeManager KeyframeManager
+        {
+            set
+            {
+                if (keyframeManager != null)
+                {
+                    keyframeManager.KeyframesChanged -= keyframeManager_KeyframesChanged;
+                }
+                keyframeManager = value;
+                keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
+            }
+        }
+
+        public ShowNavigator ShowNavigator
+        {
+            set
+            {
+                if (showNavigator != null)
+                {
+                    showNavigator.ActiveKeyframeChanged -= showNavigator_ActiveKeyframeChanged;
+                }
+                showNavigator = value;
+                showNavigator.ActiveKeyframeChanged += showNavigator_ActiveKeyframeChanged;
+            }
+        }
 
         public void SetTimeRange(float leftTime, float rightTime)
         {
@@ -74,7 +96,7 @@ namespace GarageLights.Keyframes
             bgPainter.RequestPaint(!audioPlayer.Playing);
         }
 
-        private void keyframeManager_ActiveKeyframeChanged(object sender, EventArgs e)
+        private void showNavigator_ActiveKeyframeChanged(object sender, EventArgs e)
         {
             Invalidate();
         }
@@ -245,7 +267,7 @@ namespace GarageLights.Keyframes
                 {
                     if (f.Time < leftTime || f.Time > rightTime) { continue; }
                     float x = ClientSize.Width * (f.Time - leftTime) / (rightTime - leftTime);
-                    g.DrawLine(keyframeManager.ActiveKeyframe == f ? Pens.Orange : Pens.DarkGreen, x, 0, x, ClientSize.Height);
+                    g.DrawLine(showNavigator.ActiveKeyframe == f ? Pens.Orange : Pens.DarkGreen, x, 0, x, ClientSize.Height);
                 }
 
                 // Draw keyframe markers/icons
@@ -264,7 +286,7 @@ namespace GarageLights.Keyframes
                         path.AddLine(x + KeyframeSize / 2, y, x, y + KeyframeSize / 2);
                         path.AddLine(x, y + KeyframeSize / 2, x - KeyframeSize / 2, y);
                         path.AddLine(x - KeyframeSize / 2, y, x, y - KeyframeSize / 2);
-                        if (keyframeManager.ActiveKeyframe != null && kf.Time == keyframeManager.ActiveKeyframe.Time)
+                        if (showNavigator.ActiveKeyframe != null && kf.Time == showNavigator.ActiveKeyframe.Time)
                         {
                             g.FillPath(Brushes.LightGoldenrodYellow, path);
                             g.DrawPath(Pens.DarkOrange, path);

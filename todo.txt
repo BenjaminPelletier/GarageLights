@@ -7,3 +7,5 @@
 * UI allowing ChannelInputDevice to be selected
 * Parse DMX reader serial lines manually and drop earlier lines when multiple lines are available at a time
 * Add UI-less project manipulator and invoke it to make project changes
+* Make KeyframeControl audio position orange when it's on a keyframe
+* Pan KeyframeControl with middle mouse button

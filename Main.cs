@@ -2,6 +2,7 @@
 using GarageLights.Controllers;
 using GarageLights.InputDevices.Definitions;
 using GarageLights.InputDevices.UI;
+using GarageLights.Keyframes;
 using GarageLights.Lights;
 using GarageLights.Properties;
 using GarageLights.Show;
@@ -33,6 +34,8 @@ namespace GarageLights
         private GarageLightsSettings settings;
         private ControllerManager controllerManager;
         private AudioPlayer audioPlayer;
+        private KeyframeManager keyframeManager;
+        private ShowNavigator showNavigator;
         private IChannelInputDevice channelInputDevice;
 
         private ThrottledUiCall<float> updateAudioPosition;
@@ -41,11 +44,17 @@ namespace GarageLights
         {
             updateAudioPosition = new ThrottledUiCall<float>(this, OnAudioPositionChange);
             InitializeComponent();
+
             audioPlayer = new AudioPlayer();
             audioPlayer.AudioPositionChanged += audioPlayer_AudioPositionChanged;
             audioPlayer.PlaybackError += audioPlayer_PlaybackError;
+            keyframeManager = new KeyframeManager();
+            keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
+            showNavigator = new ShowNavigator(audioPlayer, keyframeManager);
+
             multiquence1.AudioPlayer = audioPlayer;
-            multiquence1.KeyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
+            multiquence1.KeyframeManager = keyframeManager;
+            multiquence1.ShowNavigator = showNavigator;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -138,9 +147,9 @@ namespace GarageLights
 
         private void UpdateControllers()
         {
-            if (controllerManager != null && multiquence1.KeyframeManager.Keyframes != null && audioPlayer != null)
+            if (controllerManager != null && keyframeManager.Keyframes != null)
             {
-                var keyframes = multiquence1.KeyframeManager.GetKeyframesByControllerAndAddress(multiquence1.GetChannels());
+                var keyframes = keyframeManager.GetKeyframesByControllerAndAddress(multiquence1.GetChannels());
                 controllerManager.WriteValues(audioPlayer.AudioPosition, keyframes);
             }
         }

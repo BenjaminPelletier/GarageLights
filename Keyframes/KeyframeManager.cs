@@ -9,11 +9,9 @@ namespace GarageLights.Keyframes
 {
     class KeyframeManager
     {
-        List<ShowKeyframe> keyframes;
-        Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
-        ShowKeyframe activeKeyframe;
-
-        public event EventHandler ActiveKeyframeChanged;
+        private List<ShowKeyframe> keyframes;
+        private Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
+        
         public event EventHandler KeyframesChanged;
 
         public List<ShowKeyframe> Keyframes
@@ -23,20 +21,6 @@ namespace GarageLights.Keyframes
             {
                 keyframesByControllerAndAddress = null;
                 keyframes = value;
-            }
-        }
-
-        public ShowKeyframe ActiveKeyframe
-        {
-            get { return activeKeyframe; }
-            set
-            {
-                if (value != activeKeyframe)
-                {
-                    activeKeyframe = value;
-                    // TODO: Seek to new keyframe unless audio is playing
-                    ActiveKeyframeChanged?.Invoke(this, EventArgs.Empty);
-                }
             }
         }
 
@@ -117,8 +101,43 @@ namespace GarageLights.Keyframes
 
         public void NotifyKeyframesChanged()
         {
+            keyframes.Sort((a, b) => Math.Sign(a.Time - b.Time));  // TODO: remove when definitely safe
             keyframesByControllerAndAddress = null;
             KeyframesChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public ShowKeyframe AddKeyframe(float t)
+        {
+            int i = 0;
+            for (; i < keyframes.Count; i++)
+            {
+                if (t <= keyframes[i].Time) { break; }
+            }
+
+            if (i < keyframes.Count && t == keyframes[i].Time)
+            {
+                // Select an existing keyframe whose time matches exactly instead
+                return keyframes[i];
+            }
+
+            var keyframe = new ShowKeyframe() { Time = t };
+            if (i >= keyframes.Count)
+            {
+                keyframes.Add(keyframe);
+            }
+            else
+            {
+                keyframes.Insert(i, keyframe);
+            }
+            NotifyKeyframesChanged();
+            return keyframe;
+        }
+
+        public void RemoveKeyframe(ShowKeyframe keyframe)
+        {
+            if (!keyframes.Contains(keyframe)) { return; }
+            keyframes.Remove(keyframe);
+            NotifyKeyframesChanged();
         }
     }
 }

@@ -20,6 +20,8 @@ namespace GarageLights.Show
         private bool designMode;
         private Project project;
         private AudioPlayer audioPlayer;
+        private KeyframeManager keyframeManager;
+        private ShowNavigator showNavigator;
 
         public Multiquence()
         {
@@ -27,7 +29,6 @@ namespace GarageLights.Show
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
             keyframeControl1.RowSource = tvChannels;
-            controlPanel1.KeyframeManager = keyframeControl1.KeyframeManager;
         }
 
         public AudioPlayer AudioPlayer
@@ -42,6 +43,36 @@ namespace GarageLights.Show
             }
         }
 
+        public KeyframeManager KeyframeManager
+        {
+            set
+            {
+                if (keyframeManager != null)
+                {
+                    keyframeManager.KeyframesChanged -= keyframeManager_KeyframesChanged;
+                }
+                keyframeManager = value;
+                keyframeControl1.KeyframeManager = value;
+                controlPanel1.KeyframeManager = value;
+                keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
+            }
+        }
+
+        public ShowNavigator ShowNavigator
+        {
+            set
+            {
+                if (showNavigator != null)
+                {
+                    showNavigator.ActiveKeyframeChanged -= showNavigator_ActiveKeyframeChanged;
+                }
+                showNavigator = value;
+                keyframeControl1.ShowNavigator = value;
+                controlPanel1.ShowNavigator = value;
+                showNavigator.ActiveKeyframeChanged += showNavigator_ActiveKeyframeChanged;
+            }
+        }
+
         public IChannelInputDevice ChannelInputDevice
         {
             set
@@ -49,8 +80,6 @@ namespace GarageLights.Show
 
             }
         }
-
-        public KeyframeManager KeyframeManager { get { return keyframeControl1.KeyframeManager; } }
 
         public Project Project
         {
@@ -76,15 +105,18 @@ namespace GarageLights.Show
                         .ToArray()
                 );
 
-                if (project.Show == null)
+                if (keyframeManager != null)
                 {
-                    project.Show = new Show();
+                    if (project.Show == null)
+                    {
+                        project.Show = new Show();
+                    }
+                    if (project.Show.Keyframes == null)
+                    {
+                        project.Show.Keyframes = new List<ShowKeyframe>();
+                    }
+                    keyframeManager.Keyframes = project.Show.Keyframes;
                 }
-                if (project.Show.Keyframes == null)
-                {
-                    project.Show.Keyframes = new List<ShowKeyframe>();
-                }
-                keyframeControl1.KeyframeManager.Keyframes = project.Show.Keyframes;
 
                 if (audioPlayer != null)
                 {
@@ -106,6 +138,16 @@ namespace GarageLights.Show
             {
                 yield return (node as ChannelNodeTreeNode).ChannelNode;
             }
+        }
+
+        private void keyframeManager_KeyframesChanged(object sender, EventArgs e)
+        {
+            keyframeControl1.Invalidate();
+        }
+
+        private void showNavigator_ActiveKeyframeChanged(object sender, EventArgs e)
+        {
+            keyframeControl1.Invalidate();
         }
 
         private void toolPanel1_Play(object sender, EventArgs e)
@@ -150,16 +192,6 @@ namespace GarageLights.Show
         private void tvChannels_NodeLayoutChanged(object sender, EventArgs e)
         {
             keyframeControl1.Invalidate();
-        }
-
-        public class AudioFileEventArgs : EventArgs
-        {
-            public readonly string FileName;
-
-            public AudioFileEventArgs(string fileName)
-            {
-                FileName = fileName;
-            }
         }
 
         private void showScroller1_NewViewRequested(object sender, AudioViewChangedEventArgs e)
