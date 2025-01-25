@@ -59,24 +59,42 @@ namespace GarageLights.Show
             {
                 project = value;
 
-                tvChannels.Nodes.Clear();
-                if (project != null)
+
+                if (project == null)
                 {
-                    tvChannels.Nodes.AddRange(
-                        project.ChannelNodes
-                            .Select(n => ChannelNodeTreeNode.FromChannelNode(n))
-                            .ToArray()
-                    );
+                    project = new Project();
+                }
 
-                    if (project.Keyframes == null)
+                if (project.ChannelNodes == null)
+                {
+                    project.ChannelNodes = new List<ChannelNode>();
+                }
+                tvChannels.Nodes.Clear();
+                tvChannels.Nodes.AddRange(
+                    project.ChannelNodes
+                        .Select(n => ChannelNodeTreeNode.FromChannelNode(n))
+                        .ToArray()
+                );
+
+                if (project.Show == null)
+                {
+                    project.Show = new Show();
+                }
+                if (project.Show.Keyframes == null)
+                {
+                    project.Show.Keyframes = new List<ShowKeyframe>();
+                }
+                keyframeControl1.KeyframeManager.Keyframes = project.Show.Keyframes;
+
+                if (audioPlayer != null)
+                {
+                    if (project.Show.AudioFile != null)
                     {
-                        project.Keyframes = new List<ShowKeyframe>();
+                        audioPlayer.LoadAudio(project.Show.AudioFile);
                     }
-                    keyframeControl1.KeyframeManager.Keyframes = project.Keyframes;
-
-                    if (project.AudioFile != null)
+                    else
                     {
-                        audioPlayer.LoadAudio(project.AudioFile);
+                        audioPlayer.UnloadAudio();
                     }
                 }
             }

@@ -170,11 +170,19 @@ namespace GarageLights.Audio
             }
         }
 
-        public void Dispose()
+        public void UnloadAudio()
         {
             Stop();
             waveOut?.Dispose();
             audioFile?.Dispose();
+            waveOut = null;
+            audioFile = null;
+            audioLength = 0;
+        }
+
+        public void Dispose()
+        {
+            UnloadAudio();
         }
     }
 

@@ -14,13 +14,13 @@ namespace GarageLights
 {
     internal class Project
     {
-        public string AudioFile;
         public List<Controller> Controllers;
         public List<ChannelNode> ChannelNodes;
-        public List<ShowKeyframe> Keyframes;
+        public Show.Show Show;
 
         public static Project FromFile(string filename)
         {
+            if (filename == null) { return new Project(); }
             JsonSerializer serializer = Serialization.GetSerializer();
             using (var r = new StreamReader(filename))
             using (var jr = new JsonTextReader(r))

@@ -13,6 +13,7 @@ namespace GarageLights
         {
             var serializer = new JsonSerializer();
             serializer.Formatting = Formatting.Indented;
+            serializer.NullValueHandling = NullValueHandling.Ignore;
             return serializer;
         }
     }

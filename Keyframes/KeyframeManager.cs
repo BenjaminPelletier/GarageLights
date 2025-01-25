@@ -62,6 +62,7 @@ namespace GarageLights.Keyframes
                     string fullName = fullChannelNameAndKeyframe.Key;
                     var channelKeyframe = fullChannelNameAndKeyframe.Value;
 
+                    if (!channelsByFullName.ContainsKey(fullName)) { continue; }
                     Channel channel = channelsByFullName[fullName];
 
                     // Select output by controller

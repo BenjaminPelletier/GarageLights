@@ -62,7 +62,10 @@ namespace GarageLights
                 settings.Changed += Settings_Changed;
                 saveToolStripMenuItem.Enabled = settings.ProjectFile != null && settings.ProjectFile != "";
                 LoadChannelInputDevice(settings.ChannelInputDevice);
-                LoadProject(settings.ProjectFile);
+                if (settings.ProjectFile != null)
+                {
+                    LoadProject(settings.ProjectFile);
+                }
             }
             else
             {
@@ -106,7 +109,10 @@ namespace GarageLights
             Project project = Project.FromFile(filename);
             multiquence1.Project = project;
             settings.ProjectFile = filename;
-            LoadControllerManager(project.Controllers);
+            if (project.Controllers != null)
+            {
+                LoadControllerManager(project.Controllers);
+            }
             Text = "Garage Lights - " + Path.GetFileName(filename);
         }
 
@@ -220,6 +226,13 @@ namespace GarageLights
             }
             multiquence1.Project.Save(filename);
             settings.ProjectFile = filename;
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            multiquence1.Project = new Project();
+            settings.ProjectFile = null;
+            Text = "Garage Lights";
         }
     }
 }
