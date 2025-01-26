@@ -109,5 +109,28 @@ namespace GarageLights.Channels
         {
             return GetChannelNodeTreeNodes(null);
         }
+
+        public void SetVisibilityState(string fullName, ChannelVisibilityState state)
+        {
+            ChannelNodeTreeNode node = GetChannelNodeTreeNodes().Where(n => n.FullName == fullName).FirstOrDefault();
+            if (node != null)
+            {
+                if (state == ChannelVisibilityState.ToggleExpandedCollapsed)
+                {
+                    if (node.IsExpanded)
+                    {
+                        node.Collapse(true);
+                    }
+                    else
+                    {
+                        node.Expand();
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
     }
 }

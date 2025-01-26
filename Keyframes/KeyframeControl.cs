@@ -145,11 +145,17 @@ namespace GarageLights.Keyframes
                 keyframeManager == null || keyframeManager.Keyframes == null ||
                 leftTime == rightTime) { return; }
 
-            ShowKeyframe closestKeyframe = ClosestKeyframe(e.X);
-            if (closestKeyframe == null) { return; }
-
             ChannelNodeTreeNode closestChannelNode = channelSelector.ClosestChannel(e.Y);
             if (closestChannelNode == null) { return; }
+
+            if (closestChannelNode.Nodes.Count > 0)
+            {
+                channelSelector.SetVisibilityState(closestChannelNode.FullName, ChannelVisibilityState.ToggleExpandedCollapsed);
+                return;
+            }
+
+            ShowKeyframe closestKeyframe = ClosestKeyframe(e.X);
+            if (closestKeyframe == null) { return; }
 
             bool newKeyframe = false;
             if (closestKeyframe.Channels == null || !closestKeyframe.Channels.ContainsKey(closestChannelNode.FullName))
@@ -191,7 +197,17 @@ namespace GarageLights.Keyframes
             if (leftTime <= currentTime && currentTime <= rightTime && leftTime != rightTime)
             {
                 float x = (currentTime - leftTime) / (rightTime - leftTime) * ClientSize.Width;
-                e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
+                float pixelsPerSecond = ClientSize.Width / (rightTime - leftTime);
+                if (keyframeManager.Keyframes.Any(f => Math.Abs(currentTime - f.Time) * pixelsPerSecond < 1))
+                {
+                    // Audio position is on top of a keyframe
+                    e.Graphics.DrawLine(Pens.Orange, x, 0, x, ClientSize.Height);
+                }
+                else
+                {
+                    // Audio position is not on top of a keyframe
+                    e.Graphics.DrawLine(Pens.Red, x, 0, x, ClientSize.Height);
+                }
             }
         }
 
@@ -211,8 +227,8 @@ namespace GarageLights.Keyframes
                     // and end of the song
                     string rowName = node.FullName;
                     List<TimedChannelKeyframe> frames = keyframeManager.Keyframes
-                        .Where(f => f.Channels != null && f.Channels.ContainsKey(rowName))
-                        .Select(f => new TimedChannelKeyframe(f.Time, f.Channels[rowName]))
+                        .Where(f => f.Channels != null && (f.Channels.ContainsKey(rowName) || f.Channels.Keys.Any(k => k.StartsWith(rowName))))
+                        .Select(f => new TimedChannelKeyframe(f.Time, f.Channels.ContainsKey(rowName) ? f.Channels[rowName] : null))
                         .ToList();
                     if (frames.Count == 0) { continue; }
 
@@ -231,6 +247,7 @@ namespace GarageLights.Keyframes
             // Draw signal representation
             foreach (var kv in rowFrames)
             {
+                if (kv.Key.Nodes.Count > 0) { continue; }  // Don't draw signals for group nodes
                 var bounds = kv.Key.Bounds;
                 var frames = kv.Value;
                 for (int i = 1; i < frames.Count; i++)
@@ -303,16 +320,25 @@ namespace GarageLights.Keyframes
                         path.AddLine(x + KeyframeSize / 2, y, x, y + KeyframeSize / 2);
                         path.AddLine(x, y + KeyframeSize / 2, x - KeyframeSize / 2, y);
                         path.AddLine(x - KeyframeSize / 2, y, x, y - KeyframeSize / 2);
+
+                        Brush fill;
+                        Pen outline;
                         if (showNavigator.ActiveKeyframe != null && kf.Time == showNavigator.ActiveKeyframe.Time)
                         {
-                            g.FillPath(Brushes.LightGoldenrodYellow, path);
-                            g.DrawPath(Pens.DarkOrange, path);
+                            fill = Brushes.LightGoldenrodYellow;
+                            outline = Pens.DarkOrange;
                         }
                         else
                         {
-                            g.FillPath(Brushes.LightGreen, path);
-                            g.DrawPath(Pens.DarkGreen, path);
+                            fill = Brushes.LightGreen;
+                            outline = Pens.DarkGreen;
                         }
+                        if (kv.Key.Nodes.Count > 0)
+                        {
+                            fill = Brushes.DarkGray;
+                        }
+                        g.FillPath(fill, path);
+                        g.DrawPath(outline, path);
                     }
                 }
             }

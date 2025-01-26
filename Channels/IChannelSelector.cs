@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace GarageLights.Channels
 {
+    enum ChannelVisibilityState
+    {
+        ToggleExpandedCollapsed
+    }
+
     interface IChannelSelector
     {
         IEnumerable<ChannelNodeTreeNode> GetChannelNodeTreeNodes();
 
         event EventHandler SelectedChannelsChanged;
+
+        void SetVisibilityState(string fullName, ChannelVisibilityState state);
     }
 
     static class IChannelSelectorExtensions
