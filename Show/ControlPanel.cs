@@ -141,7 +141,7 @@ namespace GarageLights.Show
 
         private void tsbWrite_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void tsbRecordStart_Click(object sender, EventArgs e)

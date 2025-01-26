@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Channels;
 using GarageLights.Dialogs;
 using GarageLights.Lights;
 using GarageLights.Show;
@@ -25,7 +26,7 @@ namespace GarageLights.Keyframes
         AudioPlayer audioPlayer;
         KeyframeManager keyframeManager;
         ShowNavigator showNavigator;
-        ChannelTreeView rowSource;
+        IChannelSelector channelSource;
 
         private ThrottledPainter bgPainter;
 
@@ -82,12 +83,12 @@ namespace GarageLights.Keyframes
             Invalidate();
         }
 
-        public ChannelTreeView RowSource
+        public IChannelSelector RowSource
         {
-            get { return rowSource; }
+            get { return channelSource; }
             set
             {
-                rowSource = value;
+                channelSource = value;
                 Invalidate();
             }
         }
@@ -135,7 +136,7 @@ namespace GarageLights.Keyframes
             ShowKeyframe closestKeyframe = ClosestKeyframe(e.X);
             if (closestKeyframe == null) { return; }
 
-            ChannelNodeTreeNode closestChannelNode = rowSource.ClosestChannelNodeTreeNode(e.Y);
+            ChannelNodeTreeNode closestChannelNode = channelSource.ClosestChannel(e.Y);
             if (closestChannelNode == null) { return; }
 
             bool newKeyframe = false;
@@ -169,7 +170,7 @@ namespace GarageLights.Keyframes
             e.Graphics.Clear(BackColor);
             if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
 
-            if (rowSource != null && audioPlayer != null && audioPlayer.IsAudioLoaded && rightTime > leftTime)
+            if (channelSource != null && audioPlayer != null && audioPlayer.IsAudioLoaded && rightTime > leftTime)
             {
                 DrawKeyframes(e.Graphics);
             }
@@ -190,13 +191,13 @@ namespace GarageLights.Keyframes
             // Calculate keyframes per row
             if (keyframeManager.Keyframes != null)
             {
-                foreach (NodeBounds nodeBounds in rowSource.GetVisibleNodes())
+                foreach (ChannelNodeTreeNode node in channelSource.GetVisibleChannels())
                 {
-                    var bounds = nodeBounds.Node.Bounds;
+                    var bounds = node.Bounds;
 
                     // Collect a complete list of keyframes to draw, including implicit keyframes at the beginning
                     // and end of the song
-                    string rowName = nodeBounds.Node.FullName;
+                    string rowName = node.FullName;
                     List<TimedChannelKeyframe> frames = keyframeManager.Keyframes
                         .Where(f => f.Channels != null && f.Channels.ContainsKey(rowName))
                         .Select(f => new TimedChannelKeyframe(f.Time, f.Channels[rowName]))
@@ -211,7 +212,7 @@ namespace GarageLights.Keyframes
                     {
                         frames.Add(new TimedChannelKeyframe(maxTime, frames[frames.Count - 1].Keyframe));
                     }
-                    rowFrames[nodeBounds.Node] = frames;
+                    rowFrames[node] = frames;
                 }
             }
 
@@ -253,12 +254,12 @@ namespace GarageLights.Keyframes
             }
 
             // Draw row labels
-            foreach (NodeBounds nodeBounds in rowSource.GetVisibleNodes())
+            foreach (ChannelNodeTreeNode node in channelSource.GetVisibleChannels())
             {
-                var bounds = nodeBounds.Node.Bounds;
+                var bounds = node.Bounds;
 
-                SizeF labelSize = g.MeasureString(nodeBounds.Node.Text, Font);
-                g.DrawString(nodeBounds.Node.Text, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
+                SizeF labelSize = g.MeasureString(node.Text, Font);
+                g.DrawString(node.Text, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
             }
 
             if (keyframeManager.Keyframes != null)
