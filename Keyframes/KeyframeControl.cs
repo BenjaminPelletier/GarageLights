@@ -1,10 +1,8 @@
 ﻿using GarageLights.Audio;
 using GarageLights.Channels;
 using GarageLights.Dialogs;
-using GarageLights.Lights;
 using GarageLights.Show;
 using GarageLights.UI;
-using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +24,7 @@ namespace GarageLights.Keyframes
         AudioPlayer audioPlayer;
         KeyframeManager keyframeManager;
         ShowNavigator showNavigator;
-        IChannelSelector channelSource;
+        IChannelSelector channelSelector;
 
         private ThrottledPainter bgPainter;
 
@@ -83,12 +81,12 @@ namespace GarageLights.Keyframes
             Invalidate();
         }
 
-        public IChannelSelector RowSource
+        public IChannelSelector ChannelSelector
         {
-            get { return channelSource; }
+            get { return channelSelector; }
             set
             {
-                channelSource = value;
+                channelSelector = value;
                 Invalidate();
             }
         }
@@ -136,7 +134,7 @@ namespace GarageLights.Keyframes
             ShowKeyframe closestKeyframe = ClosestKeyframe(e.X);
             if (closestKeyframe == null) { return; }
 
-            ChannelNodeTreeNode closestChannelNode = channelSource.ClosestChannel(e.Y);
+            ChannelNodeTreeNode closestChannelNode = channelSelector.ClosestChannel(e.Y);
             if (closestChannelNode == null) { return; }
 
             bool newKeyframe = false;
@@ -170,7 +168,7 @@ namespace GarageLights.Keyframes
             e.Graphics.Clear(BackColor);
             if (audioPlayer == null || !audioPlayer.IsAudioLoaded) { return; }
 
-            if (channelSource != null && audioPlayer != null && audioPlayer.IsAudioLoaded && rightTime > leftTime)
+            if (channelSelector != null && audioPlayer != null && audioPlayer.IsAudioLoaded && rightTime > leftTime)
             {
                 DrawKeyframes(e.Graphics);
             }
@@ -191,7 +189,7 @@ namespace GarageLights.Keyframes
             // Calculate keyframes per row
             if (keyframeManager.Keyframes != null)
             {
-                foreach (ChannelNodeTreeNode node in channelSource.GetVisibleChannels())
+                foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannels())
                 {
                     var bounds = node.Bounds;
 
@@ -254,7 +252,7 @@ namespace GarageLights.Keyframes
             }
 
             // Draw row labels
-            foreach (ChannelNodeTreeNode node in channelSource.GetVisibleChannels())
+            foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannels())
             {
                 var bounds = node.Bounds;
 

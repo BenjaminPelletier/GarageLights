@@ -1,5 +1,4 @@
 ﻿using GarageLights.Keyframes;
-using GarageLights.Lights;
 using System;
 using System.Collections.Generic;
 using System.Linq;

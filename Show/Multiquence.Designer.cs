@@ -1,4 +1,6 @@
-﻿namespace GarageLights.Show
+﻿using GarageLights.Channels;
+
+namespace GarageLights.Show
 {
     partial class Multiquence
     {
@@ -31,7 +33,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.ofdAudioFile = new System.Windows.Forms.OpenFileDialog();
             this.controlPanel1 = new GarageLights.Show.ControlPanel();
-            this.tvChannels = new GarageLights.Show.ChannelTreeView();
+            this.tvChannels = new GarageLights.Channels.ChannelTreeView();
             this.keyframeControl1 = new GarageLights.Keyframes.KeyframeControl();
             this.showScroller1 = new GarageLights.Show.ShowScroller();
             this.audioControl1 = new GarageLights.Audio.AudioControl();
@@ -95,7 +97,7 @@
             this.keyframeControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.keyframeControl1.Location = new System.Drawing.Point(6, 212);
             this.keyframeControl1.Name = "keyframeControl1";
-            this.keyframeControl1.RowSource = null;
+            this.keyframeControl1.ChannelSelector = null;
             this.keyframeControl1.Size = new System.Drawing.Size(566, 210);
             this.keyframeControl1.TabIndex = 2;
             // 

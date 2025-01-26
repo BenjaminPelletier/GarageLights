@@ -98,7 +98,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Channels\ChannelNode.cs" />
-    <Compile Include="Channels\Controller.cs" />
+    <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelGroup.cs" />
     <Compile Include="Main.cs">

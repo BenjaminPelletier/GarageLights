@@ -1,4 +1,4 @@
-﻿using GarageLights.Lights;
+﻿using GarageLights.Channels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

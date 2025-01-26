@@ -3,7 +3,6 @@ using GarageLights.Controllers;
 using GarageLights.InputDevices.Definitions;
 using GarageLights.InputDevices.UI;
 using GarageLights.Keyframes;
-using GarageLights.Lights;
 using GarageLights.Properties;
 using GarageLights.Show;
 using GarageLights.UI;

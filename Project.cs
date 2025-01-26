@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GarageLights.Lights;
 using Newtonsoft.Json;
 using System.IO;
 using GarageLights.Show;
 using GarageLights.Keyframes;
+using GarageLights.Controllers;
+using GarageLights.Channels;
 
 namespace GarageLights
 {

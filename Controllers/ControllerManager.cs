@@ -1,6 +1,4 @@
 ﻿using GarageLights.Keyframes;
-using GarageLights.Lights;
-using GarageLights.Show;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

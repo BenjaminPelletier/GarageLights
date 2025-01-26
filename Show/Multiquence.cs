@@ -1,13 +1,12 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Channels;
 using GarageLights.InputDevices.Definitions;
 using GarageLights.Keyframes;
-using GarageLights.Lights;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +27,7 @@ namespace GarageLights.Show
             designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
-            keyframeControl1.RowSource = tvChannels;
+            keyframeControl1.ChannelSelector = tvChannels;
         }
 
         protected override void OnLoad(EventArgs e)
