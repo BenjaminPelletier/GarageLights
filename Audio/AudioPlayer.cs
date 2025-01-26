@@ -1,6 +1,7 @@
 ﻿using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,9 @@ using System.Threading.Tasks;
 
 namespace GarageLights.Audio
 {
-    public class AudioPlayer : IDisposable
+    [DesignerCategory("Component")]
+    [ToolboxItem(true)]
+    public class AudioPlayer : Component
     {
         private WaveOutEvent waveOut;
         private AudioFileReader audioFile;
@@ -28,6 +31,13 @@ namespace GarageLights.Audio
         public event EventHandler<AudioPositionChangedEventArgs> AudioPositionChanged;
         public event EventHandler<PlaybackErrorEventArgs> PlaybackError;
         public event EventHandler PlaybackStopped;
+
+        public AudioPlayer() { }
+
+        public AudioPlayer(IContainer container)
+        {
+            container?.Add(this);
+        }
 
         public float AudioLength => audioLength;
 
@@ -180,9 +190,10 @@ namespace GarageLights.Audio
             audioLength = 0;
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
             UnloadAudio();
+            base.Dispose();
         }
     }
 

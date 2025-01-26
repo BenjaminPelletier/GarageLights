@@ -68,7 +68,10 @@
     <Compile Include="Audio\AudioControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Audio\AudioPlayer.cs" />
+    <Compile Include="Audio\AudioPlayer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\SelectableTypeConverter.cs" />
     <Compile Include="Controllers\ControllerManager.cs" />
     <Compile Include="Controllers\DmxSerialController.cs" />
     <Compile Include="Controllers\DummyController.cs" />
@@ -90,7 +93,9 @@
     <Compile Include="InputDevices\UI\ChannelInputDeviceSelector.Designer.cs">
       <DependentUpon>ChannelInputDeviceSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Keyframes\KeyframeManager.cs" />
+    <Compile Include="Keyframes\KeyframeManager.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Lights\ChannelNode.cs" />
     <Compile Include="Lights\Controller.cs" />
     <Compile Include="Lights\Channel.cs" />
@@ -127,13 +132,15 @@
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Show\Show.cs" />
-    <Compile Include="Show\ShowNavigator.cs" />
+    <Compile Include="Show\ShowNavigator.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Show\ShowScroller.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Audio\ViewableWaveform.cs" />
-    <Compile Include="ThrottledPainter.cs" />
-    <Compile Include="ThrottledUiCall.cs" />
+    <Compile Include="UI\ThrottledPainter.cs" />
+    <Compile Include="UI\ThrottledUiCall.cs" />
     <EmbeddedResource Include="Dialogs\ChannelValueDialog.resx">
       <DependentUpon>ChannelValueDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -6,6 +6,7 @@ using GarageLights.Keyframes;
 using GarageLights.Lights;
 using GarageLights.Properties;
 using GarageLights.Show;
+using GarageLights.UI;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using Newtonsoft.Json;
@@ -33,8 +34,6 @@ namespace GarageLights
 
         private GarageLightsSettings settings;
         private ControllerManager controllerManager;
-        private AudioPlayer audioPlayer;
-        private KeyframeManager keyframeManager;
         private ShowNavigator showNavigator;
         private IChannelInputDevice channelInputDevice;
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GarageLights
+namespace GarageLights.UI
 {
     /// <summary>
     /// Hacks around stupid WinForms message dispatch behavior

@@ -1,18 +1,28 @@
 ﻿using GarageLights.Lights;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GarageLights.Keyframes
 {
-    class KeyframeManager
+    [DesignerCategory("Component")]
+    [ToolboxItem(true)]
+    class KeyframeManager : Component
     {
         private List<ShowKeyframe> keyframes;
         private Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> keyframesByControllerAndAddress;
         
         public event EventHandler KeyframesChanged;
+
+        public KeyframeManager() { }
+
+        public KeyframeManager(IContainer container)
+        {
+            container?.Add(this);
+        }
 
         public List<ShowKeyframe> Keyframes
         {

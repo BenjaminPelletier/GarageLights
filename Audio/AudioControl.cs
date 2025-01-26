@@ -6,6 +6,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using GarageLights.UI;
 
 namespace GarageLights.Audio
 {

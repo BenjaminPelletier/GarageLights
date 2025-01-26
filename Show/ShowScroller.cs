@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 using GarageLights.Audio;
 using System.Diagnostics;
+using GarageLights.UI;
 
 namespace GarageLights.Show
 {

@@ -31,6 +31,18 @@ namespace GarageLights.Show
             keyframeControl1.RowSource = tvChannels;
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            if (audioPlayer == null || keyframeManager == null || showNavigator == null)
+            {
+                throw new InvalidOperationException("All components must be provided before using the Multiquence control.");
+            }
+        }
+
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public AudioPlayer AudioPlayer
         {
             set
@@ -43,6 +55,8 @@ namespace GarageLights.Show
             }
         }
 
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public KeyframeManager KeyframeManager
         {
             set

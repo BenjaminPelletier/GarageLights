@@ -2,13 +2,16 @@
 using GarageLights.Keyframes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GarageLights.Show
 {
-    class ShowNavigator
+    [DesignerCategory("Component")]
+    [ToolboxItem(true)]
+    class ShowNavigator : Component
     {
         private AudioPlayer audioPlayer;
         private KeyframeManager keyframeManager;

@@ -2,6 +2,7 @@
 using GarageLights.Dialogs;
 using GarageLights.Lights;
 using GarageLights.Show;
+using GarageLights.UI;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
