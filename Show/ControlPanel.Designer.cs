@@ -147,7 +147,7 @@
             this.tsbWrite.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbWrite.Name = "tsbWrite";
             this.tsbWrite.Size = new System.Drawing.Size(28, 28);
-            this.tsbWrite.Text = "toolStripButton1";
+            this.tsbWrite.ToolTipText = "Write values to selected channels";
             this.tsbWrite.Click += new System.EventHandler(this.tsbWrite_Click);
             // 
             // tsbRecordStart
@@ -157,7 +157,7 @@
             this.tsbRecordStart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRecordStart.Name = "tsbRecordStart";
             this.tsbRecordStart.Size = new System.Drawing.Size(28, 28);
-            this.tsbRecordStart.Text = "toolStripButton2";
+            this.tsbRecordStart.ToolTipText = "Start recording values to selected channels";
             this.tsbRecordStart.Click += new System.EventHandler(this.tsbRecordStart_Click);
             // 
             // tsbRecordStop
@@ -167,7 +167,7 @@
             this.tsbRecordStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRecordStop.Name = "tsbRecordStop";
             this.tsbRecordStop.Size = new System.Drawing.Size(28, 28);
-            this.tsbRecordStop.Text = "toolStripButton3";
+            this.tsbRecordStop.ToolTipText = "Stop recording values to selected channels";
             this.tsbRecordStop.Visible = false;
             this.tsbRecordStop.Click += new System.EventHandler(this.tsbRecordStop_Click);
             // 

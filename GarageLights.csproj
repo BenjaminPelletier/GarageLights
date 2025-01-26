@@ -72,7 +72,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Channels\IChannelSelector.cs" />
-    <Compile Include="UI\SelectableTypeConverter.cs" />
     <Compile Include="Controllers\ControllerManager.cs" />
     <Compile Include="Controllers\DmxSerialController.cs" />
     <Compile Include="Controllers\DummyController.cs" />

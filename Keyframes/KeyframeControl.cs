@@ -5,6 +5,7 @@ using GarageLights.Show;
 using GarageLights.UI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -86,7 +87,15 @@ namespace GarageLights.Keyframes
             get { return channelSelector; }
             set
             {
+                if (channelSelector != null)
+                {
+                    channelSelector.SelectedChannelsChanged -= channelSelector_SelectedChannelsChanged;
+                }
                 channelSelector = value;
+                if (channelSelector != null)
+                {
+                    channelSelector.SelectedChannelsChanged += channelSelector_SelectedChannelsChanged;
+                }
                 Invalidate();
             }
         }
@@ -102,6 +111,11 @@ namespace GarageLights.Keyframes
         }
 
         private void keyframeManager_KeyframesChanged(object sender, EventArgs e)
+        {
+            Invalidate();
+        }
+        
+        private void channelSelector_SelectedChannelsChanged(object sender, EventArgs e)
         {
             Invalidate();
         }
@@ -189,7 +203,7 @@ namespace GarageLights.Keyframes
             // Calculate keyframes per row
             if (keyframeManager.Keyframes != null)
             {
-                foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannels())
+                foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannelNodeTreeNodes())
                 {
                     var bounds = node.Bounds;
 
@@ -252,12 +266,15 @@ namespace GarageLights.Keyframes
             }
 
             // Draw row labels
-            foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannels())
+            ChannelNodeTreeNode[] selectedChannels = channelSelector.GetCheckedChannelNodeTreeNodes().ToArray();
+            foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannelNodeTreeNodes())
             {
                 var bounds = node.Bounds;
 
-                SizeF labelSize = g.MeasureString(node.Text, Font);
-                g.DrawString(node.Text, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
+                int selectedIndex = Array.FindIndex(selectedChannels, n => n == node);
+                string caption = selectedIndex >= 0 ? "[" + (selectedIndex + 1) + "] " + node.Text : node.Text;
+                SizeF labelSize = g.MeasureString(caption, Font);
+                g.DrawString(caption, Font, Brushes.DarkGray, 0, bounds.Top + (bounds.Height - labelSize.Height) / 2);
             }
 
             if (keyframeManager.Keyframes != null)

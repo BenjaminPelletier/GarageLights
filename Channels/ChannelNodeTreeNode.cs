@@ -11,7 +11,7 @@ namespace GarageLights.Channels
     {
         ChannelNode channelNode;
 
-        public ChannelNodeTreeNode(ChannelNode node, ChannelNode parent) : base(node.Name)
+        public ChannelNodeTreeNode(ChannelNode node) : base(node.Name)
         {
             channelNode = node;
         }
@@ -21,15 +21,15 @@ namespace GarageLights.Channels
             if (channelNode.Group != null)
             {
                 TreeNode[] children = channelNode.Group.Nodes
-                    .Select(child => new ChannelNodeTreeNode(child, parent))
+                    .Select(child => new ChannelNodeTreeNode(child))
                     .ToArray();
-                ChannelNodeTreeNode result = new ChannelNodeTreeNode(channelNode, parent);
+                ChannelNodeTreeNode result = new ChannelNodeTreeNode(channelNode);
                 result.Nodes.AddRange(children);
                 return result;
             }
             else
             {
-                return new ChannelNodeTreeNode(channelNode, parent);
+                return new ChannelNodeTreeNode(channelNode);
             }
         }
 
@@ -42,7 +42,7 @@ namespace GarageLights.Channels
                 string name = channelNode.Name;
                 if (Parent != null)
                 {
-                    name = ((ChannelNodeTreeNode)this.Parent).FullName + "." + name;
+                    name = ((ChannelNodeTreeNode)Parent).FullName + "." + name;
                 }
                 return name;
             }

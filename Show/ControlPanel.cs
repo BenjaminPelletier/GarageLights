@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using GarageLights.Audio;
 using GarageLights.Keyframes;
 using GarageLights.InputDevices.Definitions;
+using GarageLights.Channels;
 
 namespace GarageLights.Show
 {
@@ -18,6 +19,7 @@ namespace GarageLights.Show
         private AudioPlayer audioPlayer;
         private KeyframeManager keyframeManager;
         private ShowNavigator showNavigator;
+        private IChannelSelector channelSelector;
 
         private IChannelInputDevice channelInputDevice;
         private Dictionary<int, int> lastChannelValues;
@@ -57,6 +59,19 @@ namespace GarageLights.Show
             }
         }
 
+        public IChannelSelector ChannelSelector
+        {
+            set
+            {
+                if (channelSelector != null)
+                {
+                    channelSelector.SelectedChannelsChanged -= channelSelector_SelectedChannelsChanged;
+                }
+                channelSelector = value;
+                channelSelector.SelectedChannelsChanged += channelSelector_SelectedChannelsChanged;
+            }
+        }
+
         public IChannelInputDevice ChannelInputDevice
         {
             set
@@ -80,6 +95,11 @@ namespace GarageLights.Show
             tsbRemoveKeyframe.Enabled = showNavigator.ActiveKeyframe != null;
             tsbMoveKeyframe.Enabled = showNavigator.ActiveKeyframe != null;
             tsbWrite.Enabled = showNavigator.ActiveKeyframe != null;
+        }
+
+        private void channelSelector_SelectedChannelsChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void channelInputDevice_ChannelValuesChanged(object sender, ChannelValuesChangedEventArgs e)
@@ -141,7 +161,50 @@ namespace GarageLights.Show
 
         private void tsbWrite_Click(object sender, EventArgs e)
         {
-            
+            if (lastChannelValues == null || channelSelector == null || audioPlayer == null) { return; }
+
+            // Get the keyframe to modify
+            ShowKeyframe keyframe = showNavigator.ActiveKeyframe;
+            if (keyframe == null)
+            {
+                // No active keyframe; add a new one
+                keyframe = keyframeManager.AddKeyframe(audioPlayer.AudioPosition);
+                showNavigator.ActiveKeyframe = keyframe;
+            }
+
+            // Get the channels for this keyframe
+            Dictionary<string, ChannelKeyframe> channels = keyframe.Channels;
+            if (channels == null)
+            {
+                channels = new Dictionary<string, ChannelKeyframe>();
+                keyframe.Channels = channels;
+            }
+
+            // Modify each selected channel
+            ChannelNodeTreeNode[] checkedNodes = channelSelector.GetCheckedChannelNodeTreeNodes().ToArray();
+            bool keyframesChanged = false;
+            foreach (var kvp in lastChannelValues)
+            {
+                if (kvp.Key < checkedNodes.Length)
+                {
+                    string fullName = checkedNodes[kvp.Key].FullName;
+                    if (!channels.ContainsKey(fullName))
+                    {
+                        channels[fullName] = new ChannelKeyframe();
+                        keyframesChanged = true;
+                    }
+                    if (channels[fullName].Value != kvp.Value)
+                    {
+                        channels[fullName].Value = kvp.Value;
+                        // TODO: use specific interpolation method
+                        keyframesChanged = true;
+                    }
+                }
+            }
+            if (keyframesChanged)
+            {
+                keyframeManager.NotifyKeyframesChanged();
+            }
         }
 
         private void tsbRecordStart_Click(object sender, EventArgs e)

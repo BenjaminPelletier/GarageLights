@@ -28,6 +28,7 @@ namespace GarageLights.Show
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
             keyframeControl1.ChannelSelector = tvChannels;
+            controlPanel1.ChannelSelector = tvChannels;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -90,7 +91,7 @@ namespace GarageLights.Show
         {
             set
             {
-
+                controlPanel1.ChannelInputDevice = value;
             }
         }
 

@@ -8,9 +8,9 @@ namespace GarageLights.Channels
 {
     interface IChannelSelector
     {
-        IEnumerable<ChannelNodeTreeNode> GetChannels();
-        IEnumerable<ChannelNodeTreeNode> GetVisibleChannels();
-        IEnumerable<ChannelNodeTreeNode> GetCheckedChannels();
+        IEnumerable<ChannelNodeTreeNode> GetChannelNodeTreeNodes();
+
+        event EventHandler SelectedChannelsChanged;
     }
 
     static class IChannelSelectorExtensions
@@ -19,7 +19,7 @@ namespace GarageLights.Channels
         {
             ChannelNodeTreeNode closestNode = null;
             float dy = float.PositiveInfinity;
-            foreach (ChannelNodeTreeNode channelNodeTreeNode in selector.GetVisibleChannels())
+            foreach (ChannelNodeTreeNode channelNodeTreeNode in selector.GetVisibleChannelNodeTreeNodes())
             {
                 var bounds = channelNodeTreeNode.Bounds;
                 if (bounds.Top <= y && y <= bounds.Bottom)
@@ -34,6 +34,17 @@ namespace GarageLights.Channels
                 }
             }
             return closestNode;
+        }
+
+        public static IEnumerable<ChannelNodeTreeNode> GetVisibleChannelNodeTreeNodes(this IChannelSelector selector)
+        {
+            return selector.GetChannelNodeTreeNodes().Where(n => n.IsVisible);
+        }
+
+        public static IEnumerable<ChannelNodeTreeNode> GetCheckedChannelNodeTreeNodes(this IChannelSelector selector)
+        {
+            return selector.GetChannelNodeTreeNodes()
+                .Where(n => n.Checked && n.Nodes.Count == 0);
         }
     }
 }
