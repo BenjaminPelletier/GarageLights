@@ -36,6 +36,7 @@
             this.tsbPreviousKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbGoToBeginning = new System.Windows.Forms.ToolStripButton();
             this.tsbMoveKeyframe = new System.Windows.Forms.ToolStripButton();
+            this.tsbEraseChecked = new System.Windows.Forms.ToolStripButton();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.tsbWrite = new System.Windows.Forms.ToolStripButton();
             this.tsbRecordStart = new System.Windows.Forms.ToolStripButton();
@@ -54,7 +55,8 @@
             this.tsbNextKeyframe,
             this.tsbPreviousKeyframe,
             this.tsbGoToBeginning,
-            this.tsbMoveKeyframe});
+            this.tsbMoveKeyframe,
+            this.tsbEraseChecked});
             this.toolStrip1.Location = new System.Drawing.Point(0, 197);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(372, 31);
@@ -124,6 +126,16 @@
             this.tsbMoveKeyframe.Size = new System.Drawing.Size(28, 28);
             this.tsbMoveKeyframe.ToolTipText = "Move keyframe to here";
             this.tsbMoveKeyframe.Click += new System.EventHandler(this.tsbMoveKeyframe_Click);
+            // 
+            // tsbEraseChecked
+            // 
+            this.tsbEraseChecked.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbEraseChecked.Image = ((System.Drawing.Image)(resources.GetObject("tsbEraseChecked.Image")));
+            this.tsbEraseChecked.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbEraseChecked.Name = "tsbEraseChecked";
+            this.tsbEraseChecked.Size = new System.Drawing.Size(28, 28);
+            this.tsbEraseChecked.ToolTipText = "Erase values in keyframe for checked channels";
+            this.tsbEraseChecked.Click += new System.EventHandler(this.tsbEraseChecked_Click);
             // 
             // toolStrip2
             // 
@@ -201,5 +213,6 @@
         private System.Windows.Forms.ToolStripButton tsbWrite;
         private System.Windows.Forms.ToolStripButton tsbRecordStart;
         private System.Windows.Forms.ToolStripButton tsbRecordStop;
+        private System.Windows.Forms.ToolStripButton tsbEraseChecked;
     }
 }

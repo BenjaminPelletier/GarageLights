@@ -11,6 +11,7 @@ using GarageLights.Audio;
 using GarageLights.Keyframes;
 using GarageLights.InputDevices.Definitions;
 using GarageLights.Channels;
+using GarageLights.UI;
 
 namespace GarageLights.Show
 {
@@ -22,11 +23,14 @@ namespace GarageLights.Show
         private IChannelSelector channelSelector;
 
         private IChannelInputDevice channelInputDevice;
+
         private Dictionary<int, int> lastChannelValues;
+        private ThrottledUiCall<bool> inputChannelValuesUpdated;
 
         public ControlPanel()
         {
             InitializeComponent();
+            inputChannelValuesUpdated = new ThrottledUiCall<bool>(this, ControlPanel_InputChannelValuesUpdated);
         }
 
         public AudioPlayer AudioPlayer
@@ -92,28 +96,34 @@ namespace GarageLights.Show
 
         private void showNavigator_ActiveKeyframeChanged(object sender, EventArgs e)
         {
+            if (tsbRecordStop.Visible)
+            {
+                tsbRecordStop.Visible = false;
+                tsbRecordStart.Visible = true;
+            }
             tsbRemoveKeyframe.Enabled = showNavigator.ActiveKeyframe != null;
             tsbMoveKeyframe.Enabled = showNavigator.ActiveKeyframe != null;
             tsbWrite.Enabled = showNavigator.ActiveKeyframe != null;
+            tsbEraseChecked.Enabled = showNavigator.ActiveKeyframe != null;
         }
 
         private void channelSelector_SelectedChannelsChanged(object sender, EventArgs e)
         {
-
+            this.Invalidate();
         }
 
         private void channelInputDevice_ChannelValuesChanged(object sender, ChannelValuesChangedEventArgs e)
         {
-            bool inform = lastChannelValues == null;
-
             lastChannelValues = e.ChannelValues;
+            inputChannelValuesUpdated.Trigger(true);
+        }
 
-            if (inform)
+        private void ControlPanel_InputChannelValuesUpdated(bool _)
+        {
+            tsbWrite.Enabled = lastChannelValues != null;
+            if (tsbRecordStop.Visible)
             {
-                BeginInvoke((Action)(() =>
-                {
-                    tsbWrite.Enabled = true;
-                }));
+                WriteInputValuesToSelectedChannels();
             }
         }
 
@@ -161,6 +171,10 @@ namespace GarageLights.Show
 
         private void tsbWrite_Click(object sender, EventArgs e)
         {
+            WriteInputValuesToSelectedChannels();
+        }
+
+        private void WriteInputValuesToSelectedChannels() {
             if (lastChannelValues == null || channelSelector == null || audioPlayer == null) { return; }
 
             // Get the keyframe to modify
@@ -217,6 +231,26 @@ namespace GarageLights.Show
         {
             tsbRecordStop.Visible = false;
             tsbRecordStart.Visible = true;
+        }
+
+        private void tsbEraseChecked_Click(object sender, EventArgs e)
+        {
+            if (showNavigator == null || showNavigator.ActiveKeyframe == null) { return; }
+
+            bool keyframesUpdated = false;
+            foreach (ChannelNodeTreeNode node in channelSelector.GetCheckedChannelNodeTreeNodes())
+            {
+                string fullName = node.FullName;
+                if (showNavigator.ActiveKeyframe.Channels.ContainsKey(fullName))
+                {
+                    showNavigator.ActiveKeyframe.Channels.Remove(fullName);
+                    keyframesUpdated = true;
+                }
+            }
+            if (keyframesUpdated)
+            {
+                keyframeManager.NotifyKeyframesChanged();
+            }
         }
     }
 }
