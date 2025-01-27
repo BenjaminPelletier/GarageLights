@@ -9,3 +9,4 @@
 * Add UI-less project manipulator and invoke it to make project changes
 * Make KeyframeControl audio position orange when it's on a keyframe
 * Pan KeyframeControl with middle mouse button
+* Make IChannelSelector independent of ChannelTreeView (ChannelTreeView actuates IChannelSelector)

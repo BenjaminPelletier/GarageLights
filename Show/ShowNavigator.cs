@@ -22,6 +22,10 @@ namespace GarageLights.Show
 
         public ShowNavigator(AudioPlayer audioPlayer, KeyframeManager keyframeManager)
         {
+            if (audioPlayer == null || keyframeManager == null)
+            {
+                throw new ArgumentNullException("ShowNavigator requires valid audioPlayer and keyframeManager");
+            }
             this.audioPlayer = audioPlayer;
             this.keyframeManager = keyframeManager;
             this.keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
@@ -47,6 +51,11 @@ namespace GarageLights.Show
             {
                 ActiveKeyframe = null;
             }
+        }
+
+        public void GoToBeginning()
+        {
+            audioPlayer.AudioPosition = 0;
         }
 
         public void SeekKeyframe(bool forward)

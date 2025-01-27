@@ -36,11 +36,11 @@
             this.tsbPreviousKeyframe = new System.Windows.Forms.ToolStripButton();
             this.tsbGoToBeginning = new System.Windows.Forms.ToolStripButton();
             this.tsbMoveKeyframe = new System.Windows.Forms.ToolStripButton();
-            this.tsbEraseChecked = new System.Windows.Forms.ToolStripButton();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.tsbWrite = new System.Windows.Forms.ToolStripButton();
             this.tsbRecordStart = new System.Windows.Forms.ToolStripButton();
             this.tsbRecordStop = new System.Windows.Forms.ToolStripButton();
+            this.tsbEraseChecked = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             this.SuspendLayout();
@@ -55,8 +55,7 @@
             this.tsbNextKeyframe,
             this.tsbPreviousKeyframe,
             this.tsbGoToBeginning,
-            this.tsbMoveKeyframe,
-            this.tsbEraseChecked});
+            this.tsbMoveKeyframe});
             this.toolStrip1.Location = new System.Drawing.Point(0, 197);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(372, 31);
@@ -127,21 +126,12 @@
             this.tsbMoveKeyframe.ToolTipText = "Move keyframe to here";
             this.tsbMoveKeyframe.Click += new System.EventHandler(this.tsbMoveKeyframe_Click);
             // 
-            // tsbEraseChecked
-            // 
-            this.tsbEraseChecked.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbEraseChecked.Image = ((System.Drawing.Image)(resources.GetObject("tsbEraseChecked.Image")));
-            this.tsbEraseChecked.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbEraseChecked.Name = "tsbEraseChecked";
-            this.tsbEraseChecked.Size = new System.Drawing.Size(28, 28);
-            this.tsbEraseChecked.ToolTipText = "Erase values in keyframe for checked channels";
-            this.tsbEraseChecked.Click += new System.EventHandler(this.tsbEraseChecked_Click);
-            // 
             // toolStrip2
             // 
             this.toolStrip2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbEraseChecked,
             this.tsbWrite,
             this.tsbRecordStart,
             this.tsbRecordStop});
@@ -182,6 +172,16 @@
             this.tsbRecordStop.ToolTipText = "Stop recording values to selected channels";
             this.tsbRecordStop.Visible = false;
             this.tsbRecordStop.Click += new System.EventHandler(this.tsbRecordStop_Click);
+            // 
+            // tsbEraseChecked
+            // 
+            this.tsbEraseChecked.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbEraseChecked.Image = ((System.Drawing.Image)(resources.GetObject("tsbEraseChecked.Image")));
+            this.tsbEraseChecked.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbEraseChecked.Name = "tsbEraseChecked";
+            this.tsbEraseChecked.Size = new System.Drawing.Size(28, 28);
+            this.tsbEraseChecked.ToolTipText = "Erase values in keyframe for checked channels";
+            this.tsbEraseChecked.Click += new System.EventHandler(this.tsbEraseChecked_Click);
             // 
             // ControlPanel
             // 

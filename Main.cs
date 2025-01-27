@@ -3,13 +3,9 @@ using GarageLights.Controllers;
 using GarageLights.InputDevices.Definitions;
 using GarageLights.InputDevices.UI;
 using GarageLights.Keyframes;
-using GarageLights.Properties;
 using GarageLights.Show;
 using GarageLights.UI;
-using NAudio.CoreAudioApi;
-using NAudio.Wave;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,6 +30,7 @@ namespace GarageLights
         private GarageLightsSettings settings;
         private ControllerManager controllerManager;
         private ShowNavigator showNavigator;
+        private ShowManipulator showManipulator;
         private IChannelInputDevice channelInputDevice;
 
         private ThrottledUiCall<float> updateAudioPosition;
@@ -49,10 +46,12 @@ namespace GarageLights
             keyframeManager = new KeyframeManager();
             keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
             showNavigator = new ShowNavigator(audioPlayer, keyframeManager);
+            showManipulator = new ShowManipulator(audioPlayer, keyframeManager, showNavigator);
 
             multiquence1.AudioPlayer = audioPlayer;
             multiquence1.KeyframeManager = keyframeManager;
             multiquence1.ShowNavigator = showNavigator;
+            multiquence1.ShowManipulator = showManipulator;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -194,7 +193,7 @@ namespace GarageLights
             }
             channelInputDevice = newDevice;
             channelInputDevice.Error += channelInputDevice_Error;
-            multiquence1.ChannelInputDevice = channelInputDevice;
+            showManipulator.ChannelInputDevice = channelInputDevice;
         }
 
         private void channelInputDevice_Error(object sender, ChannelInputDeviceErrorEventArgs e)
@@ -240,6 +239,41 @@ namespace GarageLights
             multiquence1.Project = new Project();
             settings.ProjectFile = null;
             Text = "Garage Lights";
+        }
+
+        private void goTobeginningToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showNavigator.GoToBeginning();
+        }
+
+        private void previousKeyframeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showNavigator.SeekKeyframe(false);
+        }
+
+        private void nextKeyframeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showNavigator.SeekKeyframe(true);
+        }
+
+        private void addToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showManipulator.AddBlankKeyframeAtAudioPosition();
+        }
+
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showManipulator.RemoveActiveKeyframe();
+        }
+
+        private void moveToCurrentPositionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showManipulator.MoveActiveKeyframeToAudioPosition();
+        }
+
+        private void eraseSelectedChannelsFromKeyframeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showManipulator.EraseCheckedChannels();
         }
     }
 }

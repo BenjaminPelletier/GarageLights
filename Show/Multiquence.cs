@@ -35,10 +35,10 @@ namespace GarageLights.Show
         {
             base.OnLoad(e);
 
-            if (audioPlayer == null || keyframeManager == null || showNavigator == null)
+            /*if (audioPlayer == null || keyframeManager == null || showNavigator == null)
             {
                 throw new InvalidOperationException("All components must be provided before using the Multiquence control.");
-            }
+            }*/
         }
 
         [Browsable(true)]
@@ -87,11 +87,12 @@ namespace GarageLights.Show
             }
         }
 
-        public IChannelInputDevice ChannelInputDevice
+        public ShowManipulator ShowManipulator
         {
             set
             {
-                controlPanel1.ChannelInputDevice = value;
+                controlPanel1.ShowManipulator = value;
+                value.ChannelSelector = tvChannels;
             }
         }
 

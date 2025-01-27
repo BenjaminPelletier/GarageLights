@@ -132,6 +132,7 @@
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Show\Show.cs" />
+    <Compile Include="Show\ShowManipulator.cs" />
     <Compile Include="Show\ShowNavigator.cs">
       <SubType>Component</SubType>
     </Compile>
