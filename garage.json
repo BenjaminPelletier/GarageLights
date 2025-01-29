@@ -1,0 +1,717 @@
+{
+  "Controllers": [
+    {
+      "Name": "DMX Serial",
+      "Latency": 0.0,
+      "SerialDmx": {
+        "Port": "COM2"
+      }
+    },
+    {
+      "Name": "Garage lights",
+      "Latency": 0.0,
+      "Wemo": {
+        "IpAddress": "192.168.87.1"
+      }
+    }
+  ],
+  "ChannelNodes": [
+    {
+      "Name": "Garage lights",
+      "Channel": {
+        "Controller": "Garage lights",
+        "Address": 0
+      }
+    },
+    {
+      "Name": "Mini LED spot 1",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 1,
+        "Nodes": [
+          {
+            "Name": "Pan",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "Pan (fine)",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "Tilt",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "Tilt (fine)",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Color wheel",
+            "Channel": {
+              "Address": 4
+            }
+          },
+          {
+            "Name": "Gobo",
+            "Channel": {
+              "Address": 5
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 6
+            }
+          },
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 7
+            }
+          },
+          {
+            "Name": "Unknown",
+            "Channel": {
+              "Address": 8
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 9
+            }
+          },
+          {
+            "Name": "Automove",
+            "Channel": {
+              "Address": 10
+            }
+          },
+          {
+            "Name": "Ring",
+            "Channel": {
+              "Address": 11
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "Par 1",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 17,
+        "Nodes": [
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "Red",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "Green",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "Blue",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 4
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "Par 2",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 23,
+        "Nodes": [
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "Red",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "Green",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "Blue",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 4
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "UV par",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 29,
+        "Nodes": [
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "UV 1",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "UV 2",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "UV 3",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 4
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "Par 3",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 35,
+        "Nodes": [
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "Red",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "Green",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "Blue",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 4
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "Par 4",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 41,
+        "Nodes": [
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "Red",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "Green",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "Blue",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 4
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 5
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "Mini beam 1",
+      "Group": {
+        "Controller": "DMX Serial",
+        "Address": 47,
+        "Nodes": [
+          {
+            "Name": "Pan",
+            "Channel": {
+              "Address": 0
+            }
+          },
+          {
+            "Name": "Pan (fine)",
+            "Channel": {
+              "Address": 1
+            }
+          },
+          {
+            "Name": "Tilt",
+            "Channel": {
+              "Address": 2
+            }
+          },
+          {
+            "Name": "Tilt (fine)",
+            "Channel": {
+              "Address": 3
+            }
+          },
+          {
+            "Name": "Dimmer",
+            "Channel": {
+              "Address": 5
+            }
+          },
+          {
+            "Name": "Strobe",
+            "Channel": {
+              "Address": 6
+            }
+          },
+          {
+            "Name": "Red",
+            "Channel": {
+              "Address": 7
+            }
+          },
+          {
+            "Name": "Green",
+            "Channel": {
+              "Address": 8
+            }
+          },
+          {
+            "Name": "Blue",
+            "Channel": {
+              "Address": 9
+            }
+          },
+          {
+            "Name": "White",
+            "Channel": {
+              "Address": 10
+            }
+          },
+          {
+            "Name": "Demo",
+            "Channel": {
+              "Address": 11
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "Show": {
+    "AudioFile": "C:\\bjp\\Music\\Survivor - Eye Of The Tiger.mp3",
+    "Keyframes": [
+      {
+        "Time": 0.0,
+        "Channels": {
+          "Mini LED spot 1.Pan": {
+            "Value": 174,
+            "Style": 0
+          },
+          "Mini LED spot 1.Pan (fine)": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Tilt": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Tilt (fine)": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Color wheel": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Gobo": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Dimmer": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Unknown": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Demo": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Automove": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Ring": {
+            "Value": 110,
+            "Style": 0
+          }
+        }
+      },
+      {
+        "Time": 9.826669,
+        "Channels": {
+          "Par 1.Dimmer": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 1.Red": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Mini LED spot 1.Pan": {
+            "Value": 84,
+            "Style": 0
+          },
+          "Mini LED spot 1.Pan (fine)": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Tilt": {
+            "Value": 15,
+            "Style": 0
+          },
+          "Mini LED spot 1.Tilt (fine)": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Gobo": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Dimmer": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Mini LED spot 1.Unknown": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Demo": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Automove": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Ring": {
+            "Value": 0,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 10.939168,
+        "Channels": {
+          "Par 4.Dimmer": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 4.Red": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 1.Red": {
+            "Value": 0,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 11.3698416,
+        "Channels": {
+          "Par 2.Dimmer": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 2.Red": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 4.Red": {
+            "Value": 0,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 11.77654,
+        "Channels": {
+          "Par 3.Dimmer": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 3.Red": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 2.Red": {
+            "Value": 0,
+            "Style": 1
+          },
+          "Mini LED spot 1.Dimmer": {
+            "Value": 255,
+            "Style": 0
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 209,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 13.1100235,
+        "Channels": {
+          "Par 3.Red": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Par 1.Blue": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 0,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 13.5358505,
+        "Channels": {
+          "Par 1.Blue": {
+            "Value": 0,
+            "Style": 1
+          },
+          "Par 4.Blue": {
+            "Value": 255,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 13.9373455,
+        "Channels": {
+          "Par 4.Blue": {
+            "Value": 0,
+            "Style": 1
+          },
+          "Par 2.Blue": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 209,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 15.3154564,
+        "Channels": {
+          "Par 2.Blue": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Par 1.Green": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 0,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 15.7291174,
+        "Channels": {
+          "Par 4.Green": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 1.Green": {
+            "Value": 0,
+            "Style": 1
+          }
+        }
+      },
+      {
+        "Time": 16.1366959,
+        "Channels": {
+          "Par 4.Green": {
+            "Value": 0,
+            "Style": 1
+          },
+          "Par 2.Green": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Par 3.Green": {
+            "Value": 255,
+            "Style": 1
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 209,
+            "Style": 1
+          },
+          "Mini LED spot 1.Pan": {
+            "Value": 84,
+            "Style": 0
+          },
+          "Mini LED spot 1.Tilt": {
+            "Value": 15,
+            "Style": 0
+          }
+        }
+      },
+      {
+        "Time": 18.6436119,
+        "Channels": {
+          "Par 2.Green": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Par 3.Green": {
+            "Value": 0,
+            "Style": 0
+          },
+          "Mini LED spot 1.Strobe": {
+            "Value": 0,
+            "Style": 1
+          },
+          "Mini LED spot 1.Pan": {
+            "Value": 81,
+            "Style": 0
+          },
+          "Mini LED spot 1.Tilt": {
+            "Value": 45,
+            "Style": 0
+          },
+          "Mini LED spot 1.Gobo": {
+            "Value": 33,
+            "Style": 1
+          }
+        }
+      }
+    ]
+  }
+}

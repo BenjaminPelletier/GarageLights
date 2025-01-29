@@ -51,7 +51,10 @@ namespace GarageLights.Show
                 channelInputDevice = value;
                 lastChannelValues = null;
                 ChannelInputAvailableChanged?.Invoke(this, new FeatureAvailabilityEventArgs(false));
-                channelInputDevice.ChannelValuesChanged += channelInputDevice_ChannelValuesChanged;
+                if (channelInputDevice != null)
+                {
+                    channelInputDevice.ChannelValuesChanged += channelInputDevice_ChannelValuesChanged;
+                }
             }
         }
 

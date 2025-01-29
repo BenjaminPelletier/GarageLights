@@ -93,7 +93,7 @@ namespace GarageLights.Audio
                 }
                 catch (Exception ex)
                 {
-                    Debug.Print("LoadAudio error: " + ex);
+                    Debug.Print("LoadAudio error: " + ex);  // TODO: FIX!!
                 }
             })
             { IsBackground = true }.Start();

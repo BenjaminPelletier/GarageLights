@@ -186,14 +186,21 @@ namespace GarageLights
 
         private void LoadChannelInputDevice(ChannelInputDevice definition)
         {
-            IChannelInputDevice newDevice = InputDevices.Implementations.ChannelInputDevice.Create(definition);
             if (channelInputDevice != null)
             {
                 channelInputDevice.Error -= channelInputDevice_Error;
             }
-            channelInputDevice = newDevice;
-            channelInputDevice.Error += channelInputDevice_Error;
-            showManipulator.ChannelInputDevice = channelInputDevice;
+            if (definition != null)
+            {
+                channelInputDevice = InputDevices.Implementations.ChannelInputDevice.Create(definition);
+                channelInputDevice.Error += channelInputDevice_Error;
+                showManipulator.ChannelInputDevice = channelInputDevice;
+            }
+            else
+            {
+                channelInputDevice = null;
+                showManipulator.ChannelInputDevice = null;
+            }
         }
 
         private void channelInputDevice_Error(object sender, ChannelInputDeviceErrorEventArgs e)

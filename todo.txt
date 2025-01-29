@@ -10,3 +10,11 @@
 * Make KeyframeControl audio position orange when it's on a keyframe
 * Pan KeyframeControl with middle mouse button
 * Make IChannelSelector independent of ChannelTreeView (ChannelTreeView actuates IChannelSelector)
+* Warn user if attempting to write or record with no channels selected
+* Survive @ messages from Arduino
+* Select keyframe at time 0 when go-to-beginning is clicked
+* Support left-click-drag and scroll wheel on KeyframeControl
+* Handle Delete button from value editor dialog
+* Add uncheck all button
+* In value dialog, change style combobox to radio buttons
+* Default value dialog to current value of channel
