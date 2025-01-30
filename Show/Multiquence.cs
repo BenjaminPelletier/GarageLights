@@ -51,7 +51,6 @@ namespace GarageLights.Show
                 audioControl1.AudioPlayer = audioPlayer;
                 keyframeControl1.AudioPlayer = audioPlayer;
                 showScroller1.AudioPlayer = audioPlayer;
-                controlPanel1.AudioPlayer = audioPlayer;
             }
         }
 

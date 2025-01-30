@@ -34,6 +34,15 @@ namespace GarageLights.Keyframes
             }
         }
 
+        public int GetChannelValue(string fullName, float t)
+        {
+            List<TimedChannelKeyframe> timedKeyframes = keyframes
+                .Where(f => f.Channels != null && f.Channels.Any(kvp => kvp.Key == fullName))
+                .Select(f => new TimedChannelKeyframe(f.Time, f.Channels[fullName]))
+                .ToList();
+            return timedKeyframes.Count > 0 ? timedKeyframes.Interpolate(t) : 0;
+        }
+
         public Dictionary<string, Dictionary<int, List<TimedChannelKeyframe>>> GetKeyframesByControllerAndAddress(IEnumerable<ChannelNode> nodes)
         {
             if (keyframesByControllerAndAddress == null && keyframes != null)
@@ -108,6 +117,8 @@ namespace GarageLights.Keyframes
             }
             return channelsByFullName;
         }
+
+
 
         public void NotifyKeyframesChanged()
         {

@@ -38,7 +38,18 @@ namespace GarageLights.Dialogs
             {
                 tbValue.Text = value.Value.ToString();
                 tbValue.SelectAll();
-                cbStyle.Text = value.Style.ToString();
+                if (value.Style == KeyframeStyle.Linear)
+                {
+                    rbLinear.Checked = true;
+                }
+                else if (value.Style == KeyframeStyle.Step)
+                {
+                    rbStep.Checked = true;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
 
@@ -57,10 +68,17 @@ namespace GarageLights.Dialogs
             }
 
             KeyframeStyle style;
-            if (!Enum.TryParse<KeyframeStyle>(cbStyle.Text, out style))
+            if (rbLinear.Checked)
             {
-                tsslMessage.Text = "Could not parse '" + cbStyle.Text + " 'keyframe style";
-                return;
+                style = KeyframeStyle.Linear;
+            }
+            else if (rbStep.Checked)
+            {
+                style = KeyframeStyle.Step;
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
 
             channelKeyframe = new ChannelKeyframe() { Value = value, Style = style };

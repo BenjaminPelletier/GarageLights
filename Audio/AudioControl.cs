@@ -24,7 +24,6 @@ namespace GarageLights.Audio
 
         private ThrottledPainter bgPainter;
         private Point dragStartPoint;
-        private float dragStartTime;
         private float dragStartLeftTime;
 
         public event EventHandler<AudioViewChangedEventArgs> AudioViewChanged;
@@ -206,7 +205,6 @@ namespace GarageLights.Audio
         private void AudioControl_MouseDown(object sender, MouseEventArgs e)
         {
             dragStartPoint = e.Location;
-            dragStartTime = TimeAt(e.X);
             dragStartLeftTime = leftTime;
             if (e.Button == MouseButtons.Left && audioPlayer != null && audioPlayer.IsAudioLoaded)
             {

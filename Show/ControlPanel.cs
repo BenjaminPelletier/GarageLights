@@ -17,7 +17,6 @@ namespace GarageLights.Show
 {
     internal partial class ControlPanel : UserControl
     {
-        private AudioPlayer audioPlayer;
         private KeyframeManager keyframeManager;
         private ShowNavigator showNavigator;
         private ShowManipulator showManipulator;
@@ -26,14 +25,6 @@ namespace GarageLights.Show
         public ControlPanel()
         {
             InitializeComponent();
-        }
-
-        public AudioPlayer AudioPlayer
-        {
-            set
-            {
-                audioPlayer = value;
-            }
         }
 
         public KeyframeManager KeyframeManager
@@ -86,18 +77,28 @@ namespace GarageLights.Show
             }
         }
 
+        private void SetButtonStates()
+        {
+            bool noChannelsSelected = channelSelector == null || !channelSelector.GetCheckedChannelNodeTreeNodes().Any();
+            bool activeKeyframe = showNavigator != null && showNavigator.ActiveKeyframe != null;
+
+            tsbRemoveKeyframe.Enabled = activeKeyframe;
+            tsbMoveKeyframe.Enabled = activeKeyframe;
+            tsbEraseChecked.Enabled = activeKeyframe && !noChannelsSelected;
+            tsbWrite.Enabled = activeKeyframe && !noChannelsSelected;
+            tsbRecordStart.Enabled = activeKeyframe && !noChannelsSelected;
+        }
+
         private void showNavigator_ActiveKeyframeChanged(object sender, EventArgs e)
         {
             if (InvokeRequired) { Invoke((Action<object, EventArgs>)showNavigator_ActiveKeyframeChanged, new object[] { sender, e }); return; }
 
-            tsbRemoveKeyframe.Enabled = showNavigator.ActiveKeyframe != null;
-            tsbMoveKeyframe.Enabled = showNavigator.ActiveKeyframe != null;
-            tsbWrite.Enabled = showNavigator.ActiveKeyframe != null;
-            tsbEraseChecked.Enabled = showNavigator.ActiveKeyframe != null;
+            SetButtonStates();
         }
 
         private void channelSelector_SelectedChannelsChanged(object sender, EventArgs e)
         {
+            SetButtonStates();
             Invalidate();
         }
 
@@ -113,9 +114,7 @@ namespace GarageLights.Show
         {
             if (InvokeRequired) { Invoke((Action<object, FeatureAvailabilityEventArgs>)showManipulator_ChannelInputAvailableChanged, new object[] { sender, e }); return; }
 
-            tsbWrite.Enabled = e.Enabled;
-            tsbRecordStart.Enabled = e.Enabled;
-            tsbRecordStop.Enabled = e.Enabled;
+            SetButtonStates();
         }
 
         private void tsbRemoveKeyframe_Click(object sender, EventArgs e)
@@ -141,6 +140,10 @@ namespace GarageLights.Show
         private void tsbGoToBeginning_Click(object sender, EventArgs e)
         {
             showNavigator.GoToBeginning();
+            if (keyframeManager != null && keyframeManager.Keyframes.Count > 0 && keyframeManager.Keyframes[0].Time == 0)
+            {
+                showNavigator.ActiveKeyframe = keyframeManager.Keyframes[0];
+            }
         }
 
         private void tsbMoveKeyframe_Click(object sender, EventArgs e)

@@ -4,17 +4,13 @@
 * Strictly-type DMX address and channel value
 * Separate controllers into definitions and implementations
 * UI allowing user to choose alternate controller implementations if one specified in project cannot be used
-* UI allowing ChannelInputDevice to be selected
+* Default ChannelInputDevice dialog to currently-selected device
+* Simulator form to preview real-time channel values
 * Parse DMX reader serial lines manually and drop earlier lines when multiple lines are available at a time
-* Add UI-less project manipulator and invoke it to make project changes
-* Make KeyframeControl audio position orange when it's on a keyframe
 * Pan KeyframeControl with middle mouse button
 * Make IChannelSelector independent of ChannelTreeView (ChannelTreeView actuates IChannelSelector)
-* Warn user if attempting to write or record with no channels selected
 * Survive @ messages from Arduino
-* Select keyframe at time 0 when go-to-beginning is clicked
-* Support left-click-drag and scroll wheel on KeyframeControl
-* Handle Delete button from value editor dialog
+* Support scroll wheel on KeyframeControl
 * Add uncheck all button
-* In value dialog, change style combobox to radio buttons
-* Default value dialog to current value of channel
+* Move time view change (audio view) management into ShowNavigator to abstract out of KeyframeControl and AudioControl
+* Remember window layout in settings

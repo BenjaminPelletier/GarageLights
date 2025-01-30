@@ -93,6 +93,7 @@
     <Compile Include="InputDevices\UI\ChannelInputDeviceSelector.Designer.cs">
       <DependentUpon>ChannelInputDeviceSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="Keyframes\Interpolation.cs" />
     <Compile Include="Keyframes\KeyframeManager.cs">
       <SubType>Component</SubType>
     </Compile>
