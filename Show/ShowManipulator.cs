@@ -15,7 +15,7 @@ namespace GarageLights.Show
         AudioPlayer audioPlayer;
         KeyframeManager keyframeManager;
         ShowNavigator showNavigator;
-        IChannelSelector channelSelector;
+        ChannelSelector channelSelector;
         private IChannelInputDevice channelInputDevice;
 
         private Dictionary<int, int> lastChannelValues;
@@ -24,20 +24,13 @@ namespace GarageLights.Show
         public event EventHandler<FeatureAvailabilityEventArgs> RecordingChanged;
         public event EventHandler<FeatureAvailabilityEventArgs> ChannelInputAvailableChanged;
 
-        public ShowManipulator(AudioPlayer audioPlayer, KeyframeManager keyframeManager, ShowNavigator showNavigator)
+        public ShowManipulator(AudioPlayer audioPlayer, KeyframeManager keyframeManager, ShowNavigator showNavigator, ChannelSelector channelSelector)
         {
             this.audioPlayer = audioPlayer;
             this.keyframeManager = keyframeManager;
             this.showNavigator = showNavigator;
             showNavigator.ActiveKeyframeChanged += showNavigator_ActiveKeyframeChanged;
-        }
-
-        public IChannelSelector ChannelSelector
-        {
-            set
-            {
-                channelSelector = value;
-            }
+            this.channelSelector = channelSelector;
         }
 
         public IChannelInputDevice ChannelInputDevice
@@ -109,13 +102,13 @@ namespace GarageLights.Show
             }
 
             // Modify each selected channel
-            ChannelNodeTreeNode[] checkedNodes = channelSelector.GetCheckedChannelNodeTreeNodes().ToArray();
+            IChannelElement[] selectedElements = channelSelector.GetSelectedChannelElements().ToArray();
             bool keyframesChanged = false;
             foreach (var kvp in lastChannelValues)
             {
-                if (kvp.Key < checkedNodes.Length)
+                if (kvp.Key < selectedElements.Length)
                 {
-                    string fullName = checkedNodes[kvp.Key].FullName;
+                    string fullName = selectedElements[kvp.Key].FullName;
                     if (!channels.ContainsKey(fullName))
                     {
                         channels[fullName] = new ChannelKeyframe();
@@ -140,7 +133,7 @@ namespace GarageLights.Show
             if (showNavigator == null || showNavigator.ActiveKeyframe == null || channelSelector == null) { return; }
 
             bool keyframesUpdated = false;
-            foreach (ChannelNodeTreeNode node in channelSelector.GetCheckedChannelNodeTreeNodes())
+            foreach (ChannelNodeTreeNode node in channelSelector.GetSelectedChannelElements())
             {
                 string fullName = node.FullName;
                 if (showNavigator.ActiveKeyframe.Channels.ContainsKey(fullName))

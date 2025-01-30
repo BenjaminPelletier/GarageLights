@@ -20,7 +20,7 @@ namespace GarageLights.Show
         private KeyframeManager keyframeManager;
         private ShowNavigator showNavigator;
         private ShowManipulator showManipulator;
-        private IChannelSelector channelSelector;
+        private ChannelSelector channelSelector;
 
         public ControlPanel()
         {
@@ -64,7 +64,7 @@ namespace GarageLights.Show
             }
         }
 
-        public IChannelSelector ChannelSelector
+        public ChannelSelector ChannelSelector
         {
             set
             {
@@ -79,7 +79,7 @@ namespace GarageLights.Show
 
         private void SetButtonStates()
         {
-            bool noChannelsSelected = channelSelector == null || !channelSelector.GetCheckedChannelNodeTreeNodes().Any();
+            bool noChannelsSelected = channelSelector == null || !channelSelector.GetSelectedChannelElements().Any();
             bool activeKeyframe = showNavigator != null && showNavigator.ActiveKeyframe != null;
 
             tsbRemoveKeyframe.Enabled = activeKeyframe;

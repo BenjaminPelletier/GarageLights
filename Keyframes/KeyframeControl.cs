@@ -25,7 +25,7 @@ namespace GarageLights.Keyframes
         AudioPlayer audioPlayer;
         KeyframeManager keyframeManager;
         ShowNavigator showNavigator;
-        IChannelSelector channelSelector;
+        ChannelSelector channelSelector;
 
         private ThrottledPainter bgPainter;
 
@@ -92,7 +92,7 @@ namespace GarageLights.Keyframes
             return leftTime + (rightTime - leftTime) * x / Width;
         }
 
-        public IChannelSelector ChannelSelector
+        public ChannelSelector ChannelSelector
         {
             get { return channelSelector; }
             set
@@ -179,13 +179,13 @@ namespace GarageLights.Keyframes
                 leftTime == rightTime) { return; }
 
             // Find channel node user double clicked on
-            ChannelNodeTreeNode closestChannelNode = channelSelector.ClosestChannel(e.Y);
-            if (closestChannelNode == null) { return; }
+            IChannelElement closestChannelElement = channelSelector.ClosestChannel(e.Y);
+            if (closestChannelElement == null) { return; }
 
             // If the node was a group rather than a channel, just toggle expanded/collapsed
-            if (closestChannelNode.Nodes.Count > 0)
+            if (closestChannelElement.ChannelNode.Group != null)
             {
-                channelSelector.SetVisibilityState(closestChannelNode.FullName, ChannelVisibilityState.ToggleExpandedCollapsed);
+                closestChannelElement.Expanded = !closestChannelElement.Expanded;
                 return;
             }
 
@@ -195,42 +195,42 @@ namespace GarageLights.Keyframes
 
             // If this channel isn't already included in the show keyframe, add a new channel keyframe to the show keyframe
             bool newChannelForKeyframe = false;
-            if (closestKeyframe.Channels == null || !closestKeyframe.Channels.ContainsKey(closestChannelNode.FullName))
+            if (closestKeyframe.Channels == null || !closestKeyframe.Channels.ContainsKey(closestChannelElement.FullName))
             {
                 // Determine what value the channel currently has at this show keyframe
-                var channelKeyframe = new ChannelKeyframe() { Value = keyframeManager.GetChannelValue(closestChannelNode.FullName, closestKeyframe.Time) };
+                var channelKeyframe = new ChannelKeyframe() { Value = keyframeManager.GetChannelValue(closestChannelElement.FullName, closestKeyframe.Time) };
                 if (closestKeyframe.Channels == null)
                 {
                     closestKeyframe.Channels = new Dictionary<string, ChannelKeyframe>();
                 }
-                closestKeyframe.Channels[closestChannelNode.FullName] = channelKeyframe;
+                closestKeyframe.Channels[closestChannelElement.FullName] = channelKeyframe;
                 newChannelForKeyframe = true;
             }
 
             // Get user input for new value
             var valueDialog = new ChannelValueDialog();
-            valueDialog.ChannelName = closestChannelNode.FullName;
-            valueDialog.ChannelKeyframe = closestKeyframe.Channels[closestChannelNode.FullName];
+            valueDialog.ChannelName = closestChannelElement.FullName;
+            valueDialog.ChannelKeyframe = closestKeyframe.Channels[closestChannelElement.FullName];
             if (valueDialog.ShowDialog(this) == DialogResult.OK)
             {
                 if (valueDialog.ChannelKeyframe != null)
                 {
                     // Update channel keyframe
-                    closestKeyframe.Channels[closestChannelNode.FullName] = valueDialog.ChannelKeyframe;
+                    closestKeyframe.Channels[closestChannelElement.FullName] = valueDialog.ChannelKeyframe;
                 }
                 else
                 {
                     // Delete channel keyframe
-                    if (closestKeyframe.Channels.ContainsKey(closestChannelNode.FullName))
+                    if (closestKeyframe.Channels.ContainsKey(closestChannelElement.FullName))
                     {
-                        closestKeyframe.Channels.Remove(closestChannelNode.FullName);
+                        closestKeyframe.Channels.Remove(closestChannelElement.FullName);
                     }
                 }
             }
             else if (newChannelForKeyframe)
             {
                 // User canceled the addition of new channel keyframe; remove that new channel keyframe from the show keyframe
-                closestKeyframe.Channels.Remove(closestChannelNode.FullName);
+                closestKeyframe.Channels.Remove(closestChannelElement.FullName);
             }
 
             keyframeManager.NotifyKeyframesChanged();
@@ -272,7 +272,7 @@ namespace GarageLights.Keyframes
             // Calculate keyframes per row
             if (keyframeManager.Keyframes != null)
             {
-                foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannelNodeTreeNodes())
+                foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannelElements())
                 {
                     var bounds = node.Bounds;
 
@@ -336,8 +336,8 @@ namespace GarageLights.Keyframes
             }
 
             // Draw row labels
-            ChannelNodeTreeNode[] selectedChannels = channelSelector.GetCheckedChannelNodeTreeNodes().ToArray();
-            foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannelNodeTreeNodes())
+            IChannelElement[] selectedChannels = channelSelector.GetSelectedChannelElements().ToArray();
+            foreach (ChannelNodeTreeNode node in channelSelector.GetVisibleChannelElements())
             {
                 var bounds = node.Bounds;
 

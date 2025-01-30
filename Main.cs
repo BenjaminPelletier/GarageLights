@@ -1,4 +1,5 @@
 ﻿using GarageLights.Audio;
+using GarageLights.Channels;
 using GarageLights.Controllers;
 using GarageLights.InputDevices.Definitions;
 using GarageLights.InputDevices.UI;
@@ -30,6 +31,7 @@ namespace GarageLights
         private GarageLightsSettings settings;
         private ControllerManager controllerManager;
         private ShowNavigator showNavigator;
+        private ChannelSelector channelSelector;
         private ShowManipulator showManipulator;
         private IChannelInputDevice channelInputDevice;
 
@@ -46,11 +48,13 @@ namespace GarageLights
             keyframeManager = new KeyframeManager();
             keyframeManager.KeyframesChanged += keyframeManager_KeyframesChanged;
             showNavigator = new ShowNavigator(audioPlayer, keyframeManager);
-            showManipulator = new ShowManipulator(audioPlayer, keyframeManager, showNavigator);
+            channelSelector = new ChannelSelector();
+            showManipulator = new ShowManipulator(audioPlayer, keyframeManager, showNavigator, channelSelector);
 
             multiquence1.AudioPlayer = audioPlayer;
             multiquence1.KeyframeManager = keyframeManager;
             multiquence1.ShowNavigator = showNavigator;
+            multiquence1.ChannelSelector = channelSelector;
             multiquence1.ShowManipulator = showManipulator;
         }
 

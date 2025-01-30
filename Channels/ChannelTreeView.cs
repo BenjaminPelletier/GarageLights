@@ -9,8 +9,10 @@ using System.Windows.Forms;
 
 namespace GarageLights.Channels
 {
-    internal class ChannelTreeView : TreeView, IChannelSelector
+    internal class ChannelTreeView : TreeView
     {
+        private ChannelSelector channelSelector;
+
         public EventHandler NodeLayoutChanged;
         Dictionary<TreeNode, Rectangle> nodeBounds = new Dictionary<TreeNode, Rectangle>();
 
@@ -21,6 +23,14 @@ namespace GarageLights.Channels
             DrawNode += ChannelTreeView_DrawNode;
             BeforeCheck += ChannelTreeView_BeforeCheck;
             AfterCheck += ChannelTreeView_AfterCheck;
+        }
+
+        public ChannelSelector ChannelSelector
+        {
+            set
+            {
+                channelSelector = value;
+            }
         }
 
         private void ChannelTreeView_DrawNode(object sender, DrawTreeNodeEventArgs e)
@@ -79,13 +89,13 @@ namespace GarageLights.Channels
             }
         }
 
-        private IEnumerable<ChannelNodeTreeNode> GetChannelNodeTreeNodes(TreeNode parent)
+        private IEnumerable<IChannelElement> GetChannelElements(TreeNode parent)
         {
             if (parent == null)
             {
                 foreach (TreeNode node in Nodes)
                 {
-                    foreach (ChannelNodeTreeNode descendant in GetChannelNodeTreeNodes(node))
+                    foreach (ChannelNodeTreeNode descendant in GetChannelElements(node))
                     {
                         yield return descendant;
                     }
@@ -97,38 +107,10 @@ namespace GarageLights.Channels
                 yield return channelTreeNode;
                 foreach (TreeNode child in parent.Nodes)
                 {
-                    foreach (ChannelNodeTreeNode descendant in GetChannelNodeTreeNodes(child))
+                    foreach (ChannelNodeTreeNode descendant in GetChannelElements(child))
                     {
                         yield return descendant;
                     }
-                }
-            }
-        }
-
-        public IEnumerable<ChannelNodeTreeNode> GetChannelNodeTreeNodes()
-        {
-            return GetChannelNodeTreeNodes(null);
-        }
-
-        public void SetVisibilityState(string fullName, ChannelVisibilityState state)
-        {
-            ChannelNodeTreeNode node = GetChannelNodeTreeNodes().Where(n => n.FullName == fullName).FirstOrDefault();
-            if (node != null)
-            {
-                if (state == ChannelVisibilityState.ToggleExpandedCollapsed)
-                {
-                    if (node.IsExpanded)
-                    {
-                        node.Collapse(true);
-                    }
-                    else
-                    {
-                        node.Expand();
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException();
                 }
             }
         }

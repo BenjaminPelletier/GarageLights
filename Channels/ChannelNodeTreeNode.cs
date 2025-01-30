@@ -7,9 +7,10 @@ using System.Windows.Forms;
 
 namespace GarageLights.Channels
 {
-    internal class ChannelNodeTreeNode : TreeNode
+    internal class ChannelNodeTreeNode : TreeNode, IChannelElement
     {
         ChannelNode channelNode;
+        public event EventHandler SelectedChanged;
 
         public ChannelNodeTreeNode(ChannelNode node) : base(node.Name)
         {
@@ -45,6 +46,45 @@ namespace GarageLights.Channels
                     name = ((ChannelNodeTreeNode)Parent).FullName + "." + name;
                 }
                 return name;
+            }
+        }
+
+        public IEnumerable<IChannelElement> Children
+        {
+            get
+            {
+                foreach (TreeNode n in Nodes)
+                {
+                    yield return (IChannelElement)n;
+                }
+            }
+        }
+
+        public bool Visible { get { return IsVisible; } }
+
+        public bool Selected
+        {
+            get { return Checked; }
+            set
+            {
+                Checked = value;
+                SelectedChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public bool Expanded
+        {
+            get { return IsExpanded; }
+            set
+            {
+                if (IsExpanded)
+                {
+                    Collapse();
+                }
+                else
+                {
+                    Expand();
+                }
             }
         }
     }

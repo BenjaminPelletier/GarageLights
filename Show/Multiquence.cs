@@ -21,28 +21,15 @@ namespace GarageLights.Show
         private AudioPlayer audioPlayer;
         private KeyframeManager keyframeManager;
         private ShowNavigator showNavigator;
+        private ChannelSelector channelSelector;
 
         public Multiquence()
         {
             designMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime;
             InitializeComponent();
             tvChannels.NodeLayoutChanged += tvChannels_NodeLayoutChanged;
-            keyframeControl1.ChannelSelector = tvChannels;
-            controlPanel1.ChannelSelector = tvChannels;
         }
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-
-            /*if (audioPlayer == null || keyframeManager == null || showNavigator == null)
-            {
-                throw new InvalidOperationException("All components must be provided before using the Multiquence control.");
-            }*/
-        }
-
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public AudioPlayer AudioPlayer
         {
             set
@@ -54,8 +41,6 @@ namespace GarageLights.Show
             }
         }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public KeyframeManager KeyframeManager
         {
             set
@@ -91,7 +76,16 @@ namespace GarageLights.Show
             set
             {
                 controlPanel1.ShowManipulator = value;
-                value.ChannelSelector = tvChannels;
+            }
+        }
+
+        public ChannelSelector ChannelSelector
+        {
+            set
+            {
+                channelSelector = value;
+                keyframeControl1.ChannelSelector = value;
+                controlPanel1.ChannelSelector = value;
             }
         }
 
@@ -112,12 +106,17 @@ namespace GarageLights.Show
                 {
                     project.ChannelNodes = new List<ChannelNode>();
                 }
+                List<ChannelNodeTreeNode> topNodes = project.ChannelNodes.Select(n => ChannelNodeTreeNode.FromChannelNode(n)).ToList();
                 tvChannels.Nodes.Clear();
-                tvChannels.Nodes.AddRange(
-                    project.ChannelNodes
-                        .Select(n => ChannelNodeTreeNode.FromChannelNode(n))
-                        .ToArray()
-                );
+                tvChannels.Nodes.AddRange(topNodes.Select(c => (TreeNode)c).ToArray());
+                if (topNodes.Count > 0 && channelSelector == null)
+                {
+                    throw new InvalidOperationException("Attempted to set Multiquence.Project to a non-empty project before ChannelSelector had been populated");
+                }
+                if (channelSelector != null)
+                {
+                    channelSelector.SetTopElements(topNodes);
+                }
 
                 if (keyframeManager != null)
                 {

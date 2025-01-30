@@ -8,7 +8,6 @@
 * Simulator form to preview real-time channel values
 * Parse DMX reader serial lines manually and drop earlier lines when multiple lines are available at a time
 * Pan KeyframeControl with middle mouse button
-* Make IChannelSelector independent of ChannelTreeView (ChannelTreeView actuates IChannelSelector)
 * Survive @ messages from Arduino
 * Support scroll wheel on KeyframeControl
 * Add uncheck all button
